@@ -38,7 +38,7 @@ body {
 
 /* ===== SCREENS ===== */
 .screen { display: none; min-height: 100vh; flex-direction: column; }
-.screen.active { display: flex; }
+.screen.active { display: flex !important; }
 
 /* ===== SLIDESHOW HOME ===== */
 #screen-home {
@@ -714,7 +714,7 @@ canvas#sigCanvas {
       <div class="app-subtitle" data-i18n="home_tagline">Universal Dive Journal</div>
     </div>
     <div class="home-bottom">
-      <button class="btn-primary" onclick="App.startApp()" data-i18n="home_start">Start my journal</button>
+      <button id="btnStart" class="btn-primary" onclick="App.startApp()" data-i18n="home_start">Commencer mon journal</button>
       <button class="btn-secondary" onclick="App.goAdmin()" data-i18n="home_admin">🔧 Admin</button>
       <div class="lang-switch">
         <button class="lang-btn active" onclick="App.setLang('fr')">FR</button>
@@ -1143,8 +1143,13 @@ const App = (function() {
   }
 
   function showScreen(id) {
-    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('.screen').forEach(function(s) { 
+      s.classList.remove('active'); 
+      s.style.display = 'none';
+    });
+    var el = document.getElementById(id);
+    el.classList.add('active');
+    el.style.display = 'flex';
     window.scrollTo(0,0);
   }
 
@@ -1620,7 +1625,16 @@ ${d.photos&&d.photos.length?`<h3>${t('photos_section')}</h3><div class="photos">
   };
 })();
 
-window.addEventListener('load', App.init);
+window.addEventListener('load', function() {
+  App.init();
+  
+  // Bind buttons safely (works even with strict CSP)
+  var btnStart = document.querySelector('.btn-primary[data-i18n="home_start"]');
+  if (btnStart) btnStart.addEventListener('click', function() { App.startApp(); });
+  
+  var btnAdmin = document.querySelector('.btn-secondary[data-i18n="home_admin"]');
+  if (btnAdmin) btnAdmin.addEventListener('click', function() { App.goAdmin(); });
+});
 </script>
 </body>
 </html>
