@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ocean Diary</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, sans-serif; background: #0a1628; color: #f8f9fa; min-height: 100vh; }
+.page { display: none; min-height: 100vh; flex-direction: column; }
+.page.show { display: flex; }
+
+#home { background: linear-gradient(160deg, #0a1628, #1a4a7a); align-items: center; justify-content: space-between; padding: 80px 24px 50px; }
+.logo-circle { width: 90px; height: 90px; border-radius: 50%; background: rgba(255,255,255,0.1); border: 2px solid #f4c542; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin-bottom: 16px; overflow: hidden; padding: 0; }
+.logo-circle img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.app-title { font-family: Georgia, serif; font-size: 2.8rem; font-weight: 300; text-align: center; }
+.app-sub { font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; color: #f4c542; margin-top: 6px; text-align: center; }
+.home-btns { width: 100%; display: flex; flex-direction: column; gap: 12px; }
+.btn-gold { width: 100%; padding: 18px; background: #f4c542; color: #0a1628; border: none; border-radius: 16px; font-size: 1rem; font-weight: bold; cursor: pointer; }
+.btn-dark { width: 100%; padding: 16px; background: rgba(255,255,255,0.08); color: #f8f9fa; border: 1px solid rgba(255,255,255,0.2); border-radius: 16px; font-size: 0.95rem; cursor: pointer; }
+.lang-row { display: flex; justify-content: center; gap: 12px; }
+.lang-btn { background: none; border: none; color: rgba(255,255,255,0.4); font-size: 0.85rem; cursor: pointer; padding: 4px 8px; }
+.lang-btn.on { color: #f4c542; }
+.credit { font-size: 0.65rem; color: rgba(255,255,255,0.3); text-align: center; font-style: italic; }
+
+.hdr { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: #0a1628; border-bottom: 1px solid rgba(255,255,255,0.08); position: sticky; top: 0; z-index: 10; }
+.hdr-title { font-family: Georgia, serif; font-size: 1.3rem; }
+.hdr-btn { background: none; border: none; color: #f8f9fa; font-size: 1.3rem; cursor: pointer; padding: 8px; }
+
+#profile { background: #0a1628; }
+.profile-top { background: linear-gradient(135deg, #0d2444, #1a4a7a); padding: 40px 24px 30px; text-align: center; }
+.avatar-circle { width: 90px; height: 90px; border-radius: 50%; background: rgba(255,255,255,0.1); border: 2px solid #f4c542; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin: 0 auto 12px; cursor: pointer; overflow: hidden; }
+.avatar-circle img { width: 100%; height: 100%; object-fit: cover; }
+.form-body { padding: 24px 20px; flex: 1; overflow-y: auto; }
+.field { margin-bottom: 18px; }
+.field label { display: block; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: #f4c542; margin-bottom: 6px; }
+.field input, .field select, .field textarea { width: 100%; padding: 14px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; color: #f8f9fa; font-size: 0.95rem; font-family: Arial, sans-serif; outline: none; -webkit-appearance: none; }
+.field select option { background: #0a1628; }
+.field textarea { resize: none; min-height: 100px; line-height: 1.5; }
+
+#dash { background: #0a1628; }
+.dash-top { background: linear-gradient(160deg, #0d2444, #0a1628); padding: 24px 20px; }
+.dash-greet { font-family: Georgia, serif; font-size: 1.6rem; font-weight: 300; }
+.dash-greet span { color: #f4c542; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 16px; }
+.stat { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 12px; text-align: center; }
+.stat-val { font-family: Georgia, serif; font-size: 1.8rem; color: #f4c542; line-height: 1; }
+.stat-lbl { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.5; margin-top: 3px; }
+.quote-box { background: rgba(255,255,255,0.04); border-left: 3px solid #f4c542; border-radius: 0 12px 12px 0; padding: 12px 16px; margin: 14px 20px 0; font-style: italic; font-size: 0.8rem; line-height: 1.6; opacity: 0.75; }
+.dive-list { padding: 16px 20px 100px; }
+.sec-title { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; color: #00b4d8; margin-bottom: 12px; }
+.dive-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09); border-radius: 14px; margin-bottom: 10px; cursor: pointer; overflow: hidden; }
+.dive-card-img { width: 100%; height: 110px; object-fit: cover; display: block; }
+.dive-card-body { padding: 12px 14px; display: flex; gap: 12px; align-items: flex-start; }
+.dive-n { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #1a4a7a, #00b4d8); display: flex; align-items: center; justify-content: center; font-family: Georgia, serif; font-size: 1rem; flex-shrink: 0; }
+.dive-info { flex: 1; }
+.dive-site { font-size: 0.95rem; font-weight: bold; }
+.dive-meta { font-size: 0.75rem; opacity: 0.5; margin-top: 3px; }
+.dive-badge { font-size: 0.62rem; padding: 3px 8px; border-radius: 20px; background: rgba(0,180,216,0.15); color: #00b4d8; border: 1px solid rgba(0,180,216,0.3); flex-shrink: 0; }
+.empty { text-align: center; padding: 60px 20px; opacity: 0.4; }
+.fab { position: fixed; bottom: 28px; right: 24px; width: 58px; height: 58px; background: #f4c542; border-radius: 50%; border: none; font-size: 1.8rem; color: #0a1628; cursor: pointer; box-shadow: 0 4px 20px rgba(244,197,66,0.5); z-index: 20; display: flex; align-items: center; justify-content: center; }
+
+#dive-form { background: #0a1628; overflow-y: auto; }
+.form-scroll { padding: 20px; padding-bottom: 100px; }
+.fsec { font-family: Georgia, serif; font-size: 1rem; color: #f4c542; margin: 22px 0 12px; padding-bottom: 6px; border-bottom: 1px solid rgba(244,197,66,0.2); }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.toggle-row { display: flex; background: rgba(255,255,255,0.05); border-radius: 10px; padding: 4px; gap: 4px; }
+.tog { flex: 1; padding: 10px; background: none; border: none; color: rgba(255,255,255,0.5); font-size: 0.8rem; border-radius: 8px; cursor: pointer; font-family: Arial, sans-serif; }
+.tog.on { background: #1a4a7a; color: #f8f9fa; }
+.enc-wrap { display: flex; flex-wrap: wrap; gap: 7px; }
+.enc-tag { padding: 7px 12px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.15); background: none; color: rgba(255,255,255,0.6); font-size: 0.78rem; cursor: pointer; font-family: Arial, sans-serif; }
+.enc-tag.on { background: rgba(0,180,216,0.2); border-color: #00b4d8; color: #00b4d8; }
+.sig-wrap { border: 1px dashed rgba(255,255,255,0.2); border-radius: 12px; overflow: hidden; background: rgba(255,255,255,0.02); position: relative; }
+#sigCanvas { display: block; width: 100%; height: 130px; touch-action: none; cursor: crosshair; }
+.sig-hint { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; opacity: 0.3; pointer-events: none; }
+.sig-clear { background: none; border: none; color: rgba(255,255,255,0.35); font-size: 0.75rem; cursor: pointer; margin-top: 6px; text-decoration: underline; font-family: Arial, sans-serif; }
+.upload-box { border: 1px dashed rgba(255,255,255,0.2); border-radius: 12px; padding: 18px; text-align: center; cursor: pointer; }
+.upload-box .ico { font-size: 1.6rem; margin-bottom: 6px; }
+.upload-box .txt { font-size: 0.78rem; opacity: 0.45; }
+.photos-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; }
+.photos-grid img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; }
+.save-bar { position: fixed; bottom: 0; left: 0; right: 0; padding: 16px 20px; background: linear-gradient(to top, #0a1628 80%, transparent); z-index: 20; }
+
+#detail { background: #0a1628; overflow-y: auto; }
+.detail-hero { min-height: 180px; background: linear-gradient(160deg, #0d2444, #1a4a7a); padding: 20px; display: flex; flex-direction: column; justify-content: flex-end; position: relative; }
+.detail-n { position: absolute; top: 16px; right: 20px; font-family: Georgia, serif; font-size: 4rem; opacity: 0.12; line-height: 1; }
+.detail-site { font-family: Georgia, serif; font-size: 1.9rem; font-weight: 300; }
+.detail-loc { font-size: 0.82rem; opacity: 0.55; margin-top: 4px; }
+.detail-body { padding: 20px; padding-bottom: 100px; }
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.dstat { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09); border-radius: 12px; padding: 12px; }
+.dstat-lbl { font-size: 0.62rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.45; }
+.dstat-val { font-family: Georgia, serif; font-size: 1.5rem; color: #f4c542; margin-top: 2px; }
+.dsec { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: #00b4d8; margin: 16px 0 8px; }
+.notes-box { background: rgba(255,255,255,0.04); border-radius: 12px; padding: 14px; font-size: 0.88rem; line-height: 1.7; white-space: pre-wrap; }
+.action-bar { position: fixed; bottom: 0; left: 0; right: 0; display: flex; gap: 10px; padding: 16px 20px; background: linear-gradient(to top, #0a1628 80%, transparent); z-index: 20; }
+.btn-red { padding: 14px 18px; background: rgba(220,38,38,0.15); border: 1px solid rgba(220,38,38,0.3); color: #f87171; border-radius: 14px; font-family: Arial, sans-serif; font-size: 0.9rem; cursor: pointer; }
+
+#admin { background: #0a1628; }
+.admin-login { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 24px; }
+.admin-content { flex: 1; overflow-y: auto; padding: 20px; }
+.admin-sec { background: rgba(255,255,255,0.04); border-radius: 14px; padding: 18px; margin-bottom: 14px; }
+.admin-sec h3 { font-family: Georgia, serif; font-size: 1.1rem; color: #f4c542; margin-bottom: 12px; }
+.slides-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
+.slide-thumb { aspect-ratio: 1; border-radius: 8px; overflow: hidden; position: relative; }
+.slide-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.slide-del { position: absolute; top: 3px; right: 3px; background: rgba(220,38,38,0.85); border: none; color: white; width: 20px; height: 20px; border-radius: 50%; font-size: 0.65rem; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<!-- HOME -->
+<div class="page show" id="home">
+  <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+    <div class="logo-circle"><img src="data:image/jpeg;base64,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"></div>
+    <div class="app-title">Ocean Diary</div>
+    <div class="app-sub" id="txt-tagline">Journal de plongee universel</div>
+  </div>
+  <div class="home-btns">
+    <button class="btn-gold" id="btn-start">Commencer mon journal</button>
+    <button class="btn-dark" id="btn-admin">🔧 Admin</button>
+    <div class="lang-row">
+      <button class="lang-btn on" id="btn-fr">FR</button>
+      <span style="opacity:0.3">|</span>
+      <button class="lang-btn" id="btn-en">EN</button>
+    </div>
+    <div class="credit">Cree par Justine · Monitrice et Instructrice · Dive N Smile Bora-Bora</div>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div class="page" id="profile">
+  <div class="profile-top">
+    <div class="avatar-circle" id="avatar-wrap" onclick="document.getElementById('avatar-input').click()">
+      <span id="avatar-emoji">🤿</span>
+      <img id="avatar-img" style="display:none">
+    </div>
+    <input type="file" id="avatar-input" accept="image/*" style="display:none">
+    <p style="font-size:0.72rem;opacity:0.4;margin-bottom:14px" id="txt-tap-photo">Appuyer pour ajouter une photo</p>
+    <h2 id="txt-profile-title" style="font-family:Georgia,serif;font-size:1.8rem;font-weight:300">Mon profil</h2>
+  </div>
+  <div class="form-body">
+    <div class="field">
+      <label id="lbl-name">Nom complet</label>
+      <input type="text" id="p-name" autocomplete="name">
+    </div>
+    <div class="field">
+      <label id="lbl-cert">Niveau de certification</label>
+      <select id="p-cert">
+        <option value="">—</option>
+        <option>Open Water / Niveau 1</option>
+        <option>Advanced / Niveau 2</option>
+        <option>Rescue / Niveau 3</option>
+        <option>Divemaster / MF1</option>
+        <option>Instructor / MF2</option>
+      </select>
+    </div>
+    <div class="field">
+      <label id="lbl-fed">Federation</label>
+      <select id="p-fed">
+        <option value="">—</option>
+        <option>PADI</option><option>SSI</option><option>CMAS</option>
+        <option>FFESSM</option><option>NAUI</option><option>SDI/TDI</option>
+        <option>RAID</option><option>Other / Autre</option>
+      </select>
+    </div>
+    <button class="btn-gold" id="btn-save-profile" style="margin-top:8px">Enregistrer</button>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="page" id="dash">
+  <div class="dash-top">
+    <div class="dash-greet">Bonjour, <span id="dash-name"></span> 👋</div>
+    <div class="stats">
+      <div class="stat"><div class="stat-val" id="s-dives">0</div><div class="stat-lbl" id="lbl-dives">Plongees</div></div>
+      <div class="stat"><div class="stat-val" id="s-depth">—</div><div class="stat-lbl" id="lbl-depth">Prof. max</div></div>
+      <div class="stat"><div class="stat-val" id="s-time">—</div><div class="stat-lbl" id="lbl-time">Temps total</div></div>
+    </div>
+  </div>
+  <div class="quote-box" id="daily-quote"></div>
+  <div class="dive-list">
+    <div class="sec-title" id="lbl-mydives">Mes plongees</div>
+    <div id="dive-list-container"></div>
+  </div>
+  <button class="fab" id="btn-new-dive">+</button>
+</div>
+
+<!-- DIVE FORM -->
+<div class="page" id="dive-form">
+  <div class="hdr">
+    <button class="hdr-btn" id="btn-back-dash1">←</button>
+    <div class="hdr-title" id="form-title">Nouvelle plongee</div>
+    <div style="width:40px"></div>
+  </div>
+  <div class="form-scroll">
+    <div class="fsec">🌊 <span id="fsec-dive">La plongee</span></div>
+    <div class="field"><label id="lbl-site">Nom du site</label><input type="text" id="f-site"></div>
+    <div class="field"><label id="lbl-loc">Lieu / Pays</label><input type="text" id="f-loc"></div>
+    <div class="field"><label id="lbl-date">Date</label><input type="date" id="f-date"></div>
+    <div class="grid2">
+      <div class="field"><label id="lbl-depth2">Prof. max (m)</label><input type="number" id="f-depth" min="0"></div>
+      <div class="field"><label id="lbl-dur">Duree (min)</label><input type="number" id="f-dur" min="0"></div>
+    </div>
+    <div class="field">
+      <label id="lbl-type">Type</label>
+      <div class="toggle-row">
+        <button class="tog on" id="tog-guided">Encadree</button>
+        <button class="tog" id="tog-auto">Autonome</button>
+      </div>
+    </div>
+    <div class="fsec">🐠 <span id="fsec-enc">Rencontres</span></div>
+    <div class="enc-wrap" id="enc-tags"></div>
+    <div class="field" style="margin-top:10px"><label id="lbl-enc-other">Autres rencontres</label><input type="text" id="f-enc-other"></div>
+    <div class="fsec">📓 <span id="fsec-notes">Mon recit</span></div>
+    <div class="field"><textarea id="f-notes" rows="5" style="min-height:120px"></textarea></div>
+    <div class="fsec">📷 <span id="fsec-photos">Photos</span></div>
+    <div class="upload-box" id="photos-upload-btn">
+      <div class="ico">🖼️</div>
+      <div class="txt" id="lbl-add-photos">Appuyer pour ajouter des photos</div>
+    </div>
+    <input type="file" id="photo-input" accept="image/*" multiple style="display:none">
+    <div class="photos-grid" id="photos-grid"></div>
+    <div class="fsec">🎓 <span id="fsec-inst">Moniteur / Guide</span></div>
+    <div class="field"><label id="lbl-inst-name">Nom du moniteur</label><input type="text" id="f-inst-name"></div>
+    <div class="field"><label id="lbl-inst-num">Numero de moniteur</label><input type="text" id="f-inst-num"></div>
+    <div class="field">
+      <label id="lbl-sig">Signature du moniteur</label>
+      <div class="sig-wrap">
+        <canvas id="sigCanvas"></canvas>
+        <div class="sig-hint" id="sig-hint">Signer ici</div>
+      </div>
+      <button class="sig-clear" id="btn-clear-sig">Effacer la signature</button>
+    </div>
+    <div class="field">
+      <label id="lbl-stamp">Tampon du moniteur</label>
+      <div class="upload-box" id="stamp-upload-btn">
+        <div class="ico">🔏</div>
+        <div class="txt" id="lbl-add-stamp">Ajouter une photo du tampon</div>
+      </div>
+      <input type="file" id="stamp-input" accept="image/*" style="display:none">
+      <img id="stamp-preview" style="display:none;width:100%;margin-top:8px;border-radius:10px">
+    </div>
+  </div>
+  <div class="save-bar">
+    <button class="btn-gold" id="btn-save-dive">Enregistrer la plongee</button>
+  </div>
+</div>
+
+<!-- DETAIL -->
+<div class="page" id="detail">
+  <div class="hdr">
+    <button class="hdr-btn" id="btn-back-dash2">←</button>
+    <div class="hdr-title" id="lbl-detail-title">Detail</div>
+    <button class="hdr-btn" id="btn-export-pdf">📄</button>
+  </div>
+  <div id="detail-content"></div>
+  <div class="action-bar">
+    <button class="btn-gold" style="flex:1" id="btn-edit-dive">Modifier</button>
+    <button class="btn-red" id="btn-delete-dive">Supprimer</button>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div class="page" id="admin">
+  <div class="hdr">
+    <button class="hdr-btn" id="btn-back-home">←</button>
+    <div class="hdr-title">Admin</div>
+    <div style="width:40px"></div>
+  </div>
+  <div id="admin-login-wrap" class="admin-login">
+    <div style="font-size:2.5rem;margin-bottom:16px">🔐</div>
+    <div style="font-family:Georgia,serif;font-size:1.5rem;margin-bottom:6px">Admin</div>
+    <div style="font-size:0.8rem;opacity:0.45;margin-bottom:24px">Ocean Diary</div>
+    <div class="field" style="width:100%">
+      <input type="password" id="admin-pwd" placeholder="Mot de passe" style="text-align:center">
+    </div>
+    <button class="btn-gold" id="btn-admin-login" style="margin-top:12px;width:100%">Entrer</button>
+  </div>
+  <div id="admin-content-wrap" style="display:none;flex:1;overflow-y:auto">
+    <div class="admin-content">
+      <div class="admin-sec">
+        <h3>🖼️ Photos du slideshow</h3>
+        <div class="slides-grid" id="slides-grid"></div>
+        <label for="slide-input" style="margin-top:10px;display:block;text-align:center;cursor:pointer;border-radius:16px;padding:16px;background:rgba(255,255,255,0.08);color:#f8f9fa;border:1px solid rgba(255,255,255,0.2);font-size:0.95rem">+ Ajouter une photo</label>
+        <input type="file" id="slide-input" accept="image/*" multiple style="position:absolute;opacity:0;width:1px;height:1px">
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var QUOTES = {
+  fr: [
+    "La mer vous tient pour toujours dans son filet. — Cousteau",
+    "Sous l'eau, tout devient silence et lumiere.",
+    "Chaque plongee est une page blanche.",
+    "La profondeur n'est pas une limite, c'est une invitation.",
+    "Sous la surface, le monde reprend son vrai visage.",
+    "Plonger, c'est apprendre a respirer autrement.",
+    "L'ocean est un poeme que personne ne finit d'ecrire."
+  ],
+  en: [
+    "The sea holds one in its net forever. — Cousteau",
+    "Underwater, everything becomes silence and light.",
+    "Every dive is a blank page.",
+    "Depth is not a limit, it is an invitation.",
+    "Below the surface, the world shows its true face.",
+    "To dive is to learn to breathe differently.",
+    "The ocean is a poem no one ever finishes writing."
+  ]
+};
+
+var ENCOUNTERS = [
+  {fr:"Requin",en:"Shark"},{fr:"Raie Manta",en:"Manta Ray"},{fr:"Raie pastenague",en:"Stingray"},
+  {fr:"Tortue",en:"Sea Turtle"},{fr:"Dauphin",en:"Dolphin"},{fr:"Baleine",en:"Whale"},
+  {fr:"Murene",en:"Moray Eel"},{fr:"Pieuvre",en:"Octopus"},{fr:"Nudibranche",en:"Nudibranch"},
+  {fr:"Barracuda",en:"Barracuda"},{fr:"Napoleon",en:"Napoleon Fish"},{fr:"Merou",en:"Grouper"},
+  {fr:"Poisson-lion",en:"Lionfish"},{fr:"Poisson-globe",en:"Pufferfish"},{fr:"Crabe",en:"Crab"},
+  {fr:"Crevette",en:"Shrimp"},{fr:"Etoile de mer",en:"Starfish"}
+];
+
+var lang = localStorage.getItem("od_lang") || "fr";
+var profile = JSON.parse(localStorage.getItem("od_profile") || "null");
+var dives = JSON.parse(localStorage.getItem("od_dives") || "[]");
+var slides = JSON.parse(localStorage.getItem("od_slides") || "[]");
+var currentDiveId = null;
+var editingId = null;
+var diveType = "guided";
+var selectedEnc = [];
+var photoData = [];
+var stampData = null;
+var sigCtx = null;
+var sigDrawing = false;
+var sigHasContent = false;
+
+function show(id) {
+  var pages = document.querySelectorAll(".page");
+  for (var i = 0; i < pages.length; i++) { pages[i].classList.remove("show"); }
+  document.getElementById(id).classList.add("show");
+  window.scrollTo(0, 0);
+}
+
+function startApp() {
+  if (!profile) { show("profile"); } else { showDash(); }
+}
+
+function saveProfile() {
+  var name = document.getElementById("p-name").value.trim();
+  if (!name) { alert("Entre ton prenom"); return; }
+  var avatarImg = document.getElementById("avatar-img");
+  profile = {
+    name: name,
+    cert: document.getElementById("p-cert").value,
+    fed: document.getElementById("p-fed").value,
+    avatar: (avatarImg.style.display !== "none") ? avatarImg.src : null
+  };
+  localStorage.setItem("od_profile", JSON.stringify(profile));
+  showDash();
+}
+
+function showDash() {
+  show("dash");
+  document.getElementById("dash-name").textContent = profile ? profile.name.split(" ")[0] : "";
+  document.getElementById("s-dives").textContent = dives.length;
+  var depths = [];
+  var times = 0;
+  for (var i = 0; i < dives.length; i++) {
+    if (dives[i].depth) depths.push(parseFloat(dives[i].depth));
+    if (dives[i].duration) times += parseInt(dives[i].duration);
+  }
+  document.getElementById("s-depth").textContent = depths.length ? Math.max.apply(null, depths) + "m" : "—";
+  document.getElementById("s-time").textContent = times ? times + "min" : "—";
+
+  var qEl = document.getElementById("daily-quote");
+  if (qEl) {
+    var q = QUOTES[lang];
+    qEl.textContent = q[new Date().getDay() % q.length];
+  }
+
+  var container = document.getElementById("dive-list-container");
+  if (!dives.length) {
+    container.innerHTML = "<div class='empty'><div style='font-size:2.5rem;margin-bottom:10px'>🌊</div><div>" + (lang === "fr" ? "Aucune plongee" : "No dives yet") + "</div></div>";
+    return;
+  }
+  var html = "";
+  for (var j = dives.length - 1; j >= 0; j--) {
+    var d = dives[j];
+    var num = j + 1;
+    var badge = d.type === "guided" ? (lang === "fr" ? "Encadree" : "Guided") : (lang === "fr" ? "Autonome" : "Autonomous");
+    var imgHtml = (d.photos && d.photos.length) ? "<img class='dive-card-img' src='" + d.photos[0] + "'>" : "";
+    html += "<div class='dive-card' data-id='" + d.id + "'>"
+      + imgHtml
+      + "<div class='dive-card-body'>"
+      + "<div class='dive-n'>" + num + "</div>"
+      + "<div class='dive-info'><div class='dive-site'>" + (d.site || "—") + "</div>"
+      + "<div class='dive-meta'>" + (d.date || "") + " · " + (d.location || "") + " · " + (d.depth ? d.depth + "m" : "") + " " + (d.duration ? d.duration + "min" : "") + "</div></div>"
+      + "<div class='dive-badge'>" + badge + "</div>"
+      + "</div></div>";
+  }
+  container.innerHTML = html;
+  var cards = container.querySelectorAll(".dive-card");
+  for (var k = 0; k < cards.length; k++) {
+    (function(card) {
+      card.addEventListener("click", function() { viewDive(card.getAttribute("data-id")); });
+    })(cards[k]);
+  }
+}
+
+function newDive() {
+  editingId = null;
+  diveType = "guided";
+  selectedEnc = [];
+  photoData = [];
+  stampData = null;
+  var ids = ["f-site","f-loc","f-date","f-depth","f-dur","f-notes","f-inst-name","f-inst-num","f-enc-other"];
+  for (var i = 0; i < ids.length; i++) { document.getElementById(ids[i]).value = ""; }
+  document.getElementById("f-date").value = new Date().toISOString().slice(0, 10);
+  document.getElementById("stamp-preview").style.display = "none";
+  document.getElementById("photos-grid").innerHTML = "";
+  setDiveType("guided");
+  buildEncTags();
+  show("dive-form");
+  initSig(null);
+}
+
+function setDiveType(type) {
+  diveType = type;
+  document.getElementById("tog-guided").className = "tog" + (type === "guided" ? " on" : "");
+  document.getElementById("tog-auto").className = "tog" + (type === "autonomous" ? " on" : "");
+}
+
+function buildEncTags() {
+  var wrap = document.getElementById("enc-tags");
+  if (!wrap) return;
+  var html = "";
+  for (var i = 0; i < ENCOUNTERS.length; i++) {
+    var e = ENCOUNTERS[i];
+    var label = lang === "fr" ? e.fr : e.en;
+    var on = selectedEnc.indexOf(e.fr) >= 0 ? " on" : "";
+    html += "<button class='enc-tag" + on + "' data-key='" + e.fr + "'>" + label + "</button>";
+  }
+  wrap.innerHTML = html;
+  var tags = wrap.querySelectorAll(".enc-tag");
+  for (var j = 0; j < tags.length; j++) {
+    (function(tag) {
+      tag.addEventListener("click", function() {
+        var key = tag.getAttribute("data-key");
+        var idx = selectedEnc.indexOf(key);
+        if (idx >= 0) { selectedEnc.splice(idx, 1); tag.classList.remove("on"); }
+        else { selectedEnc.push(key); tag.classList.add("on"); }
+      });
+    })(tags[j]);
+  }
+}
+
+function addPhotos(input) {
+  for (var i = 0; i < input.files.length; i++) {
+    (function(file) {
+      var r = new FileReader();
+      r.onload = function(e) { photoData.push(e.target.result); renderPhotos(); };
+      r.readAsDataURL(file);
+    })(input.files[i]);
+  }
+}
+
+function renderPhotos() {
+  var g = document.getElementById("photos-grid");
+  var h = "";
+  for (var i = 0; i < photoData.length; i++) { h += "<img src='" + photoData[i] + "'>"; }
+  g.innerHTML = h;
+}
+
+function addStamp(input) {
+  if (!input.files[0]) return;
+  var r = new FileReader();
+  r.onload = function(e) {
+    stampData = e.target.result;
+    document.getElementById("stamp-preview").src = stampData;
+    document.getElementById("stamp-preview").style.display = "block";
+  };
+  r.readAsDataURL(input.files[0]);
+}
+
+function initSig(existing) {
+  var canvas = document.getElementById("sigCanvas");
+  var dpr = window.devicePixelRatio || 1;
+  canvas.width = canvas.offsetWidth * dpr;
+  canvas.height = 130 * dpr;
+  sigCtx = canvas.getContext("2d");
+  sigCtx.scale(dpr, dpr);
+  sigCtx.strokeStyle = "#f4c542";
+  sigCtx.lineWidth = 2.5;
+  sigCtx.lineCap = "round";
+  sigCtx.lineJoin = "round";
+  sigHasContent = false;
+  var hint = document.getElementById("sig-hint");
+  if (existing) {
+    var img = new Image();
+    img.onload = function() { sigCtx.drawImage(img, 0, 0, canvas.offsetWidth, 130); };
+    img.src = existing;
+    sigHasContent = true;
+    hint.style.display = "none";
+  } else {
+    hint.style.display = "flex";
+  }
+  function pos(e) {
+    var r = canvas.getBoundingClientRect();
+    var s = e.touches ? e.touches[0] : e;
+    return { x: s.clientX - r.left, y: s.clientY - r.top };
+  }
+  canvas.onmousedown = function(e) { sigDrawing = true; sigCtx.beginPath(); var p = pos(e); sigCtx.moveTo(p.x, p.y); };
+  canvas.onmousemove = function(e) { if (!sigDrawing) return; var p = pos(e); sigCtx.lineTo(p.x, p.y); sigCtx.stroke(); sigHasContent = true; hint.style.display = "none"; };
+  canvas.onmouseup = function() { sigDrawing = false; };
+  canvas.ontouchstart = function(e) { e.preventDefault(); sigDrawing = true; sigCtx.beginPath(); var p = pos(e); sigCtx.moveTo(p.x, p.y); };
+  canvas.ontouchmove = function(e) { e.preventDefault(); if (!sigDrawing) return; var p = pos(e); sigCtx.lineTo(p.x, p.y); sigCtx.stroke(); sigHasContent = true; hint.style.display = "none"; };
+  canvas.ontouchend = function() { sigDrawing = false; };
+}
+
+function clearSig() {
+  var c = document.getElementById("sigCanvas");
+  sigCtx.clearRect(0, 0, c.width, c.height);
+  sigHasContent = false;
+  document.getElementById("sig-hint").style.display = "flex";
+}
+
+function saveDive() {
+  var site = document.getElementById("f-site").value.trim();
+  if (!site) { alert("Entre le nom du site"); return; }
+  var sig = sigHasContent ? document.getElementById("sigCanvas").toDataURL("image/png") : null;
+  var dive = {
+    id: editingId || Date.now().toString(),
+    site: site,
+    location: document.getElementById("f-loc").value.trim(),
+    date: document.getElementById("f-date").value,
+    depth: document.getElementById("f-depth").value,
+    duration: document.getElementById("f-dur").value,
+    type: diveType,
+    encounters: selectedEnc.slice(),
+    encOther: document.getElementById("f-enc-other").value.trim(),
+    notes: document.getElementById("f-notes").value.trim(),
+    photos: photoData.slice(),
+    instName: document.getElementById("f-inst-name").value.trim(),
+    instNum: document.getElementById("f-inst-num").value.trim(),
+    signature: sig,
+    stamp: stampData
+  };
+  if (editingId) {
+    for (var i = 0; i < dives.length; i++) { if (dives[i].id === editingId) { dives[i] = dive; break; } }
+  } else {
+    dives.push(dive);
+  }
+  localStorage.setItem("od_dives", JSON.stringify(dives));
+  showToast(lang === "fr" ? "Plongee enregistree!" : "Dive saved!");
+  setTimeout(function() { showDash(); }, 600);
+}
+
+function viewDive(id) {
+  currentDiveId = id;
+  var d = null; var num = 0;
+  for (var i = 0; i < dives.length; i++) { if (dives[i].id === id) { d = dives[i]; num = i + 1; break; } }
+  if (!d) return;
+  var encList = [];
+  for (var j = 0; j < d.encounters.length; j++) {
+    var key = d.encounters[j];
+    for (var k = 0; k < ENCOUNTERS.length; k++) {
+      if (ENCOUNTERS[k].fr === key) { encList.push(lang === "fr" ? ENCOUNTERS[k].fr : ENCOUNTERS[k].en); break; }
+    }
+  }
+  if (d.encOther) encList.push(d.encOther);
+  var badge = d.type === "guided" ? (lang === "fr" ? "Encadree" : "Guided") : (lang === "fr" ? "Autonome" : "Autonomous");
+  var html = "<div class='detail-hero'><div class='detail-n'>" + num + "</div>"
+    + "<div class='detail-site'>" + d.site + "</div>"
+    + "<div class='detail-loc'>📍 " + (d.location || "—") + " · " + (d.date || "—") + "</div></div>"
+    + "<div class='detail-body'><div class='detail-grid'>"
+    + "<div class='dstat'><div class='dstat-lbl'>" + (lang === "fr" ? "Profondeur" : "Depth") + "</div><div class='dstat-val'>" + (d.depth || "—") + (d.depth ? "m" : "") + "</div></div>"
+    + "<div class='dstat'><div class='dstat-lbl'>" + (lang === "fr" ? "Duree" : "Duration") + "</div><div class='dstat-val'>" + (d.duration || "—") + (d.duration ? "min" : "") + "</div></div>"
+    + "<div class='dstat' style='grid-column:1/-1'><div class='dstat-lbl'>Type</div><div style='margin-top:4px'>" + badge + "</div></div>"
+    + "</div>";
+  if (encList.length) {
+    html += "<div class='dsec'>" + (lang === "fr" ? "Rencontres" : "Encounters") + "</div><div class='enc-wrap'>";
+    for (var e = 0; e < encList.length; e++) { html += "<span class='enc-tag on' style='cursor:default'>" + encList[e] + "</span>"; }
+    html += "</div>";
+  }
+  if (d.notes) html += "<div class='dsec'>" + (lang === "fr" ? "Recit" : "Story") + "</div><div class='notes-box'>" + d.notes + "</div>";
+  if (d.photos && d.photos.length) {
+    html += "<div class='dsec'>Photos</div><div class='photos-grid'>";
+    for (var p = 0; p < d.photos.length; p++) { html += "<img src='" + d.photos[p] + "'>"; }
+    html += "</div>";
+  }
+  if (d.instName || d.signature || d.stamp) {
+    html += "<div class='dsec'>" + (lang === "fr" ? "Moniteur" : "Instructor") + "</div><div class='dstat'>";
+    if (d.instName) html += "<div style='font-weight:bold'>" + d.instName + "</div>";
+    if (d.instNum) html += "<div style='font-size:0.78rem;opacity:0.55'># " + d.instNum + "</div>";
+    html += "</div>";
+    if (d.signature) html += "<div class='dsec'>Signature</div><div class='dstat'><img src='" + d.signature + "' style='max-width:100%;border-radius:8px'></div>";
+    if (d.stamp) html += "<div class='dsec'>Tampon</div><div class='dstat'><img src='" + d.stamp + "' style='max-width:160px;border-radius:8px'></div>";
+  }
+  html += "</div>";
+  document.getElementById("detail-content").innerHTML = html;
+  show("detail");
+}
+
+function editDive() {
+  var d = null;
+  for (var i = 0; i < dives.length; i++) { if (dives[i].id === currentDiveId) { d = dives[i]; break; } }
+  if (!d) return;
+  editingId = d.id;
+  diveType = d.type || "guided";
+  selectedEnc = d.encounters ? d.encounters.slice() : [];
+  photoData = d.photos ? d.photos.slice() : [];
+  stampData = d.stamp || null;
+  document.getElementById("f-site").value = d.site || "";
+  document.getElementById("f-loc").value = d.location || "";
+  document.getElementById("f-date").value = d.date || "";
+  document.getElementById("f-depth").value = d.depth || "";
+  document.getElementById("f-dur").value = d.duration || "";
+  document.getElementById("f-notes").value = d.notes || "";
+  document.getElementById("f-inst-name").value = d.instName || "";
+  document.getElementById("f-inst-num").value = d.instNum || "";
+  document.getElementById("f-enc-other").value = d.encOther || "";
+  setDiveType(diveType);
+  renderPhotos();
+  if (d.stamp) { document.getElementById("stamp-preview").src = d.stamp; document.getElementById("stamp-preview").style.display = "block"; }
+  buildEncTags();
+  show("dive-form");
+  initSig(d.signature);
+}
+
+function deleteDive() {
+  if (!confirm(lang === "fr" ? "Supprimer cette plongee ?" : "Delete this dive?")) return;
+  dives = dives.filter(function(d) { return d.id !== currentDiveId; });
+  localStorage.setItem("od_dives", JSON.stringify(dives));
+  showToast(lang === "fr" ? "Supprimee" : "Deleted");
+  setTimeout(function() { showDash(); }, 400);
+}
+
+function exportPDF() {
+  var d = null; var num = 0;
+  for (var i = 0; i < dives.length; i++) { if (dives[i].id === currentDiveId) { d = dives[i]; num = i + 1; break; } }
+  if (!d) return;
+  var w = window.open("", "_blank");
+  w.document.write("<!DOCTYPE html><html><head><meta charset='UTF-8'><title>Ocean Diary</title>"
+    + "<style>body{font-family:Georgia,serif;max-width:700px;margin:40px auto;padding:0 20px;color:#111}"
+    + "h1{font-size:2rem}table{width:100%;border-collapse:collapse;margin:16px 0}td{padding:10px;border:1px solid #ddd}"
+    + "img{max-width:100%;border-radius:8px}.footer{font-size:0.7rem;color:#aaa;text-align:center;margin-top:40px;border-top:1px solid #eee;padding-top:12px}"
+    + "</style></head><body>"
+    + "<h1>🌊 " + d.site + "</h1><p style='color:#666'>Ocean Diary · #" + num + " · " + (d.date || "") + "</p>"
+    + "<table><tr><td><b>Lieu</b><br>" + (d.location || "—") + "</td><td><b>Type</b><br>" + (d.type === "guided" ? "Encadree" : "Autonome") + "</td></tr>"
+    + "<tr><td><b>Profondeur</b><br>" + (d.depth || "—") + (d.depth ? "m" : "") + "</td><td><b>Duree</b><br>" + (d.duration || "—") + (d.duration ? "min" : "") + "</td></tr></table>"
+    + (d.notes ? "<h3>Recit</h3><p style='white-space:pre-wrap'>" + d.notes + "</p>" : "")
+    + (d.instName ? "<h3>Moniteur</h3><p>" + d.instName + (d.instNum ? " #" + d.instNum : "") + "</p>" : "")
+    + (d.signature ? "<h3>Signature</h3><img src='" + d.signature + "' style='max-width:240px'>" : "")
+    + (d.stamp ? "<h3>Tampon</h3><img src='" + d.stamp + "' style='max-width:160px'>" : "")
+    + "<div class='footer'>Ocean Diary · Cree par Justine · Dive N Smile Bora-Bora</div></body></html>");
+  w.document.close();
+  setTimeout(function() { w.print(); }, 500);
+}
+
+function goAdmin() {
+  document.getElementById("admin-pwd").value = "";
+  document.getElementById("admin-login-wrap").style.display = "flex";
+  document.getElementById("admin-content-wrap").style.display = "none";
+  show("admin");
+}
+
+function adminLogin() {
+  if (document.getElementById("admin-pwd").value !== "Diary29.") { alert("Mot de passe incorrect"); return; }
+  document.getElementById("admin-login-wrap").style.display = "none";
+  document.getElementById("admin-content-wrap").style.display = "block";
+  renderSlides();
+}
+
+function renderSlides() {
+  var grid = document.getElementById("slides-grid");
+  var html = "";
+  for (var i = 0; i < slides.length; i++) {
+    html += "<div class='slide-thumb'><img src='" + slides[i] + "'>"
+      + "<button class='slide-del' data-idx='" + i + "'>x</button></div>";
+  }
+  grid.innerHTML = html;
+  var dels = grid.querySelectorAll(".slide-del");
+  for (var j = 0; j < dels.length; j++) {
+    (function(btn) {
+      btn.addEventListener("click", function() {
+        slides.splice(parseInt(btn.getAttribute("data-idx")), 1);
+        localStorage.setItem("od_slides", JSON.stringify(slides));
+        renderSlides();
+      });
+    })(dels[j]);
+  }
+}
+
+function addSlide(input) {
+  if (!input.files || input.files.length === 0) return;
+  var remaining = input.files.length;
+  for (var i = 0; i < input.files.length; i++) {
+    (function(file) {
+      var r = new FileReader();
+      r.onload = function(e) {
+        slides.push(e.target.result);
+        remaining--;
+        if (remaining === 0) {
+          localStorage.setItem("od_slides", JSON.stringify(slides));
+          renderSlides();
+          showToast(slides.length + " photo(s)");
+        }
+      };
+      r.onerror = function() { showToast("Erreur lecture"); };
+      r.readAsDataURL(file);
+    })(input.files[i]);
+  }
+}
+
+function showToast(msg) {
+  var el = document.createElement("div");
+  el.textContent = msg;
+  el.style.cssText = "position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#f4c542;color:#0a1628;padding:10px 20px;border-radius:20px;font-size:0.85rem;font-weight:bold;z-index:999;white-space:nowrap";
+  document.body.appendChild(el);
+  setTimeout(function() { document.body.removeChild(el); }, 2000);
+}
+
+window.addEventListener("load", function() {
+  document.getElementById("btn-start").addEventListener("click", function() { startApp(); });
+  document.getElementById("btn-admin").addEventListener("click", function() { goAdmin(); });
+  document.getElementById("btn-fr").addEventListener("click", function() { lang = "fr"; localStorage.setItem("od_lang", "fr"); document.getElementById("btn-fr").className = "lang-btn on"; document.getElementById("btn-en").className = "lang-btn"; });
+  document.getElementById("btn-en").addEventListener("click", function() { lang = "en"; localStorage.setItem("od_lang", "en"); document.getElementById("btn-fr").className = "lang-btn"; document.getElementById("btn-en").className = "lang-btn on"; });
+  document.getElementById("btn-save-profile").addEventListener("click", function() { saveProfile(); });
+  document.getElementById("btn-new-dive").addEventListener("click", function() { newDive(); });
+  document.getElementById("btn-back-dash1").addEventListener("click", function() { showDash(); });
+  document.getElementById("btn-back-dash2").addEventListener("click", function() { showDash(); });
+  document.getElementById("btn-back-home").addEventListener("click", function() { show("home"); });
+  document.getElementById("btn-save-dive").addEventListener("click", function() { saveDive(); });
+  document.getElementById("btn-edit-dive").addEventListener("click", function() { editDive(); });
+  document.getElementById("btn-delete-dive").addEventListener("click", function() { deleteDive(); });
+  document.getElementById("btn-export-pdf").addEventListener("click", function() { exportPDF(); });
+  document.getElementById("btn-admin-login").addEventListener("click", function() { adminLogin(); });
+  document.getElementById("btn-clear-sig").addEventListener("click", function() { clearSig(); });
+  document.getElementById("tog-guided").addEventListener("click", function() { setDiveType("guided"); });
+  document.getElementById("tog-auto").addEventListener("click", function() { setDiveType("autonomous"); });
+  document.getElementById("photos-upload-btn").addEventListener("click", function() { document.getElementById("photo-input").click(); });
+  document.getElementById("photo-input").addEventListener("change", function() { addPhotos(this); });
+  document.getElementById("stamp-upload-btn").addEventListener("click", function() { document.getElementById("stamp-input").click(); });
+  document.getElementById("stamp-input").addEventListener("change", function() { addStamp(this); });
+
+  document.getElementById("slide-input").addEventListener("change", function() { addSlide(this); });
+  document.getElementById("avatar-input").addEventListener("change", function() {
+    if (!this.files[0]) return;
+    var r = new FileReader();
+    r.onload = function(e) {
+      document.getElementById("avatar-img").src = e.target.result;
+      document.getElementById("avatar-img").style.display = "block";
+      document.getElementById("avatar-emoji").style.display = "none";
+    };
+    r.readAsDataURL(this.files[0]);
+  });
+});
+</script>
+</body>
+</html>
