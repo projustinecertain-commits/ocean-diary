@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ocean Diary</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: Arial, sans-serif; background: #0a1628; color: #f8f9fa; min-height: 100vh; }
+
+.screen { display: none; min-height: 100vh; flex-direction: column; }
+.screen.active { display: flex; }
+
+/* HOME */
+#home { align-items: center; justify-content: space-between; padding: 60px 24px 50px; background: linear-gradient(160deg, #0a1628, #1a4a7a); }
+.logo-circle { width: 90px; height: 90px; border-radius: 50%; background: rgba(255,255,255,0.1); border: 2px solid #f4c542; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; margin-bottom: 16px; }
+.app-title { font-size: 2.8rem; font-weight: 300; letter-spacing: 2px; text-align: center; font-family: Georgia, serif; }
+.app-sub { font-size: 0.75rem; letter-spacing: 4px; text-transform: uppercase; color: #f4c542; margin-top: 8px; text-align: center; }
+.home-top { display: flex; flex-direction: column; align-items: center; }
+.home-bottom { width: 100%; }
+
+.btn { width: 100%; padding: 16px; border: none; border-radius: 16px; font-size: 1rem; cursor: pointer; margin-bottom: 12px; font-family: Arial, sans-serif; }
+.btn-gold { background: #f4c542; color: #0a1628; font-weight: bold; }
+.btn-dark { background: rgba(255,255,255,0.08); color: #f8f9fa; border: 1px solid rgba(255,255,255,0.2); }
+.btn-blue { background: #1a4a7a; color: #f8f9fa; }
+
+.lang-row { display: flex; justify-content: center; gap: 16px; margin-top: 8px; }
+.lang-btn { background: none; border: none; color: rgba(255,255,255,0.5); font-size: 0.85rem; cursor: pointer; padding: 4px 8px; }
+.lang-btn.active { color: #f4c542; }
+.credit { text-align: center; font-size: 0.65rem; color: rgba(255,255,255,0.3); margin-top: 8px; font-style: italic; }
+
+/* HEADER */
+.header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; background: #0a1628; border-bottom: 1px solid rgba(255,255,255,0.08); position: sticky; top: 0; z-index: 10; }
+.header h2 { font-size: 1.3rem; font-weight: 400; font-family: Georgia, serif; }
+.icon-btn { background: none; border: none; color: #f8f9fa; font-size: 1.3rem; cursor: pointer; padding: 8px; }
+
+/* PROFILE */
+#profile { background: #0a1628; }
+.profile-hero { background: linear-gradient(135deg, #0d2444, #1a4a7a); padding: 40px 24px 32px; text-align: center; }
+.profile-hero h2 { font-family: Georgia, serif; font-size: 1.8rem; font-weight: 300; }
+.profile-hero p { font-size: 0.85rem; opacity: 0.6; margin-top: 4px; }
+.form-body { padding: 24px 20px; flex: 1; overflow-y: auto; }
+.form-group { margin-bottom: 20px; }
+.form-label { display: block; font-size: 0.72rem; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; color: #f4c542; margin-bottom: 8px; }
+.form-input, .form-select { width: 100%; padding: 14px 16px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; color: #f8f9fa; font-size: 0.95rem; font-family: Arial, sans-serif; outline: none; -webkit-appearance: none; }
+.form-select option { background: #0a1628; }
+.form-textarea { width: 100%; padding: 14px 16px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; color: #f8f9fa; font-size: 0.95rem; font-family: Arial, sans-serif; outline: none; resize: none; min-height: 100px; }
+
+/* DASHBOARD */
+#dashboard { background: #0a1628; }
+.dash-hero { background: linear-gradient(160deg, #0d2444, #0a1628); padding: 24px 20px; }
+.dash-hello { font-family: Georgia, serif; font-size: 1.6rem; font-weight: 300; }
+.dash-hello span { color: #f4c542; font-style: italic; }
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 16px; }
+.stat { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 14px 8px; text-align: center; }
+.stat-val { font-family: Georgia, serif; font-size: 1.8rem; color: #f4c542; }
+.stat-lbl { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.6; margin-top: 4px; }
+.dive-list { padding: 16px 20px 100px; }
+.section-lbl { font-size: 0.72rem; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; color: #00b4d8; margin-bottom: 14px; }
+.dive-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09); border-radius: 16px; padding: 16px; margin-bottom: 12px; cursor: pointer; display: flex; gap: 14px; align-items: flex-start; }
+.dive-num { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #1a4a7a, #00b4d8); display: flex; align-items: center; justify-content: center; font-size: 0.9rem; flex-shrink: 0; }
+.dive-info { flex: 1; }
+.dive-site { font-size: 1rem; font-weight: bold; }
+.dive-meta { font-size: 0.78rem; opacity: 0.55; margin-top: 3px; }
+.dive-badge { font-size: 0.65rem; padding: 3px 8px; border-radius: 20px; background: rgba(0,180,216,0.2); color: #00b4d8; border: 1px solid rgba(0,180,216,0.3); white-space: nowrap; }
+.fab { position: fixed; bottom: 28px; right: 24px; width: 60px; height: 60px; background: #f4c542; border-radius: 50%; border: none; font-size: 1.8rem; cursor: pointer; color: #0a1628; z-index: 50; box-shadow: 0 4px 20px rgba(244,197,66,0.5); }
+.empty { text-align: center; padding: 60px 20px; opacity: 0.5; }
+.empty-icon { font-size: 3rem; margin-bottom: 12px; }
+
+/* DIVE FORM */
+#dive-form { background: #0a1628; overflow-y: auto; }
+.dive-form-body { padding: 20px; padding-bottom: 120px; }
+.section-title { font-family: Georgia, serif; font-size: 1.05rem; color: #f4c542; margin: 24px 0 14px; padding-bottom: 8px; border-bottom: 1px solid rgba(244,197,66,0.2); }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.toggle-group { display: flex; background: rgba(255,255,255,0.05); border-radius: 10px; padding: 4px; }
+.toggle-btn { flex: 1; padding: 10px 4px; background: none; border: none; color: rgba(255,255,255,0.5); font-size: 0.82rem; border-radius: 8px; cursor: pointer; font-family: Arial, sans-serif; }
+.toggle-btn.active { background: #1a4a7a; color: #f8f9fa; }
+.enc-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+.enc-tag { padding: 7px 14px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.15); background: none; color: rgba(255,255,255,0.6); font-size: 0.8rem; cursor: pointer; font-family: Arial, sans-serif; }
+.enc-tag.on { background: rgba(0,180,216,0.2); border-color: #00b4d8; color: #00b4d8; }
+.sig-wrap { border: 1px dashed rgba(255,255,255,0.25); border-radius: 12px; overflow: hidden; background: rgba(255,255,255,0.03); position: relative; }
+canvas { display: block; width: 100%; height: 140px; touch-action: none; cursor: crosshair; }
+.sig-hint { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; opacity: 0.3; pointer-events: none; }
+.photo-drop { border: 1px dashed rgba(255,255,255,0.2); border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; margin-top: 8px; }
+.photo-drop-icon { font-size: 1.8rem; }
+.photo-drop-txt { font-size: 0.8rem; opacity: 0.5; margin-top: 4px; }
+.photos-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-top: 10px; }
+.photos-grid img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; }
+.save-bar { position: fixed; bottom: 0; left: 0; right: 0; padding: 16px 20px; background: linear-gradient(to top, #0a1628 80%, transparent); }
+
+/* DETAIL */
+#detail { background: #0a1628; overflow-y: auto; }
+.detail-hero { min-height: 180px; background: linear-gradient(160deg, #0d2444, #1a4a7a); padding: 20px; display: flex; flex-direction: column; justify-content: flex-end; }
+.detail-site { font-family: Georgia, serif; font-size: 2rem; font-weight: 300; }
+.detail-loc { font-size: 0.85rem; opacity: 0.6; margin-top: 6px; }
+.detail-body { padding: 20px; padding-bottom: 100px; }
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.detail-stat { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.09); border-radius: 14px; padding: 14px; }
+.detail-lbl { font-size: 0.65rem; letter-spacing: 1px; text-transform: uppercase; opacity: 0.5; }
+.detail-val { font-family: Georgia, serif; font-size: 1.5rem; color: #f4c542; margin-top: 2px; }
+.detail-sec { font-size: 0.72rem; font-weight: bold; letter-spacing: 2px; text-transform: uppercase; color: #00b4d8; margin: 20px 0 10px; }
+.detail-notes { background: rgba(255,255,255,0.04); border-radius: 14px; padding: 16px; font-size: 0.9rem; line-height: 1.7; white-space: pre-wrap; }
+.detail-photos { display: grid; grid-template-columns: repeat(3,1fr); gap: 6px; }
+.detail-photos img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; }
+.action-bar { position: fixed; bottom: 0; left: 0; right: 0; display: flex; gap: 10px; padding: 16px 20px; background: linear-gradient(to top, #0a1628 80%, transparent); }
+.btn-danger { padding: 14px 20px; background: rgba(220,38,38,0.15); border: 1px solid rgba(220,38,38,0.3); color: #f87171; border-radius: 16px; cursor: pointer; font-family: Arial, sans-serif; font-size: 0.9rem; }
+
+/* ADMIN */
+#admin { background: #0a1628; }
+.admin-login { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 24px; }
+.admin-slides { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 12px; }
+.admin-slide { aspect-ratio: 1; border-radius: 8px; overflow: hidden; position: relative; }
+.admin-slide img { width: 100%; height: 100%; object-fit: cover; }
+.del-btn { position: absolute; top: 4px; right: 4px; background: rgba(220,38,38,0.8); border: none; color: white; width: 22px; height: 22px; border-radius: 50%; font-size: 0.7rem; cursor: pointer; }
+.admin-body { flex: 1; overflow-y: auto; padding: 20px; }
+.admin-card { background: rgba(255,255,255,0.04); border-radius: 16px; padding: 20px; margin-bottom: 16px; }
+.admin-card h3 { font-family: Georgia, serif; font-size: 1.1rem; color: #f4c542; margin-bottom: 12px; }
+
+/* TOAST */
+.toast { position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%); background: rgba(244,197,66,0.95); color: #0a1628; padding: 10px 20px; border-radius: 20px; font-size: 0.85rem; font-weight: bold; z-index: 999; opacity: 0; transition: opacity 0.3s; white-space: nowrap; pointer-events: none; }
+.toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<!-- HOME -->
+<div class="screen active" id="home">
+  <div class="home-top">
+    <div class="logo-circle" style="overflow:hidden;padding:0"><img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCACgAKADASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD6oooooAKKKKACiiigAooooAKK8+8Wa1q9h4rZdOZ5YLW1FzLb54dM4bj1qTTdXSfx5Yz2dw8lhq9iZFUsSFdOox2Ix/Ouv6pLl576Wv8A8D7jz/7Qg6jp2d07fpdfPQ72isHwxosuky6pLNMXN5ctMqbywjXsMnqe5/LtTvGWuf8ACP6HJerGJJNyxorHA3HufasfZ801CDvc6fbclJ1aqtbfqblFcdb6j4os7yy/tCztb20unVGa0zuhz3PbHv0967GlUpun1T9B0ayqp2TVu6sFFFFZmwUUUUAFFFFABRRRQAUEgAknAFIxCqSxAA5JNYcninQWnNrJqEBZvkOc7T7bsYq4U5T+FXMqlanTtzySv3djUhvrSa2e5iuYmt0zukDjaMdcmszXfEUOkrpszR+bY3kyxG4Rxtj3D5T7g1zmo3sOiaymiahbW8XhvUozHBIgwA567m9Tn+R9a5PxXd3fhnwvqnhvXoZZbN0LaZfouV3A7lRvQ5/L6Yruo4SM5LrfbzX+a6o86rjpxg+jW77SWtvSXRm94q1SC78Ravpt819JcQxImn2dqWBkkZc7uPQ45PAFdz4cE8OkWlpf3CTahBCguMNkhiO/+PfFc1qfhW41pNJ1zTdRl0nXY7ZFaYR71kBUEq6nryTWx4T8PTaMby51DUJdR1O9ZWnuHUICFGFVVHQDJ/OorTpypKKeq6ee3pbr3uaYalUhWlOS3vr5brzutuyRga7dLp/xb0MykLFf2b22T0LAkgfy/Oua/safw38XNIigSU6ZcSPJbgAlYwytvX2wcfhivYJbaCaWKSWGN5IjmNmUEofY9qlpQxjgrJfZs/x1/Ec8vU5czf2uZfhdfOwDpXIeNdb0uDUtP0HXbcfYNURwbiRtqIykbRnsc988cV19Z+uaLp2u2LWerWsdzbk52v1U+oI5B9xXPRlGM057eW/r8jrrwlODjC1/Pb0+Z57od5d+FfHth4ag1H+09JvY2eJHYNJa4BI5Hbj8vTvI2r6nqWua5rmkzQCw0hGt0WctslKjLEAEDPXk+orotF8CaL4fju30K3FtfTRNGtzIzSsmRxjJ6Zx064rmtU8LatpngjSfDGmRtObu5xqF5FwFUtkkg84PH/fPvXoRq0ak7rd2V2rebfbbQ8qpQrU6fK9ldpJ3s9FFX3318jovDvje21JdNjvra4srm9X90XT91KfRG/xro7/UrOweBLy4SFp22Rhv4j/kivO5Lm11Xx7aWdoyponheEyTy5+USAYC59to/wC+Wq/4e1ltcj1LX9ZEKeH4WzaJNGCVKn74PXPb3Jx2rKrho350rK23q9EvO2prSxdRL2cmm72TtpZJczfle6ueg0VyXgzUdU1y5uNVuGMGlSfJbW5AyQD97P8AnP4V1tcdWm6UuV7noUKyrQ50rJ9/z+YUUUVmbBRRRQBg+NbG9v8AQJ4dOciUfMYx/wAtVHVf89cVi+GZNB8VaE1jJZQRXEC7JoNu14z03KevXv68Gu4rg/Gvgi4v9Qj1jwzeDTdZU/O2SqSDuTjv+BB7+tdmHqRcfZyfL1T8/P8ArQ87FUJKp7aEea6s13Xl5+XUyfDemrrMHiPwZrDtcQafIv2ef+KMNnaR6Edce5HSu58MaTcaZoFtp+qXv9pSwjb5zxgZAPyjHPQYGTzVfwX4Zj8N6fKjTvd39y/m3V1J96V/X2A7CuhqcTX55NRem/ztq/K5phMN7KCcl71rfK+i87bBRRQSACT0Fcr0O0wLfUTZatd21wSbdpCyN/czzj6VvKQwBUgg9CK5iaMXF1LLjhmJH0q1arcQjEDOB6YyPyr4fLs+rUqs6dWLnT5nytbpX0XmvyO+tRjJJrR21N6qWp6hFYQln+aQj5Yx1P8AgKqyTXpUgsV+i4rLnti5LNlmPUk5rqzLiScKbjhab5u8uny6kUcOm/fehseHpJbiw+0XDZkldmPoBnAA9uK06zdAOLLyu6MfyPNaVe7lNV1cFSm3duKv69fxMK/8SVu5zvivwzHrOg6hp9lKmnSXjK0s0UQzIQf4sYznGK5HXdJuNQ1yy8N/Z5bHwrpNutxPMRhZwo6A/nnv94+leoVBe20d5Zz202fKmjaN8HnDDB/nXtUcTKnp/Se1/W2x59fCQq6/f5pa29L7nl2n+NLjVbtls9Qs/D2kIh+xm6gyLhVyOCcLgY6A5HvXeeC9afxB4dttQljVJHLK2zO1irEblz2OM1h+E9A1nSoIdD1OLSb7QbbcIpnUmVl5KgoRtyCeTnpXawxRwxrHCixxqMKqjAA9AK0xU6T92mvR+X3Xu/MxwdKsnz1JPzT7/fay6W3H0UUVxHohRRRQAUUUUAIehxWPLq0tjceRfwZHVZYujD6HofxrZqnqlot3aMpHzr8yn3rzszjifYOeElacdV1T8n+hrRcFK01oyJNXtnHy+Z9NtMnuzOhHEUP8RJ61yniHWrbw5o819cjdsUsEHVv8kgfjXGaXf+PPFEEd5BLZ6ZYyfNCHQZI7EDBJ+pxXjYGOZ5pg3iK84U6b0u7xT/N/d6GWIxVGhW9jTjKcuy1t+SO+8TeJLTw5py3U8czmWQQ28EMXm3FzKeiRR9ycE+wBJwBR4T1bVtXS4bWtA1DRShUxfabqKTzQc9o2O0jAyD61xJ0zxnc3vlxa+l3PbE5aG23CEkcjcQMHB6Dmr0Oi+N5I98Xiu34JBV4SpU+hBXg10wynDU6Sc8TDXr76j8ly2/NmMsdXv/Al/wCS/wCZ6Ff3q6dYz3cn2ho4UMjLCjSuQOyouSx9gKw/DHjbQvFUlzBYzSC8tgDPa3ED29xED0JjcA49+lctPD8QLFd39u6XMB/fXH/slYV1f+KpNY07ULvS9LvL633Ja3IzEWDjDIGyoZT/AHTkZAI5FVHL4VKco0sRTl/29p801+Nx/XZrWVCa+V/yZ7GA1q4lhIZDx7H2NXI9Ttm4d/Lb0fj9a8k/4WJqmiuT4j8N3ltbnh3jO5R788frXY2Go2et6fHe6dKJbeQZU9x7EdjXl4j+08ko+3hTXs2+6lG/k4vS/mdNDE4fFz9ne0vNNP8AE6yTUrKNdz3cAH++KktLqO7i82HcYz0YqQG9xntXPaVpUUpa6uU3RJkqmPvEViDxvfQTia5tIPsORuRAQ6L6g5wSB2xXZg8+m6cK2OSpqfwrVt+b7I7VgfaNxoatb/5HodFIjB1DKcqRkH1pa+nPOCiiigAooooAKKKKACiiqepXIhi2A/vH4A9B61hisRDDUpVaj0RUYuTsjwr41zteahaaTGcCea3hx/vs5P8AJa9IvbpNO0+6e3UAWsLeWo6DYvH8q86+LVr/AGf4o0HV58/ZPtsLSN2XYMf0NdvaT2+pWso8xHinVg21geGHt9a+Y4kxFSjlGBjQV4tNuy66X+e5GVKP1nESm7O6+7U5a98d3PhyLRdF0ObRIb67he6nu9YmaOBFALHO3ku7Bvp713HhjxBD4o8P6Vr0EJgGo2cc7xE52NkgjPfBBGe4Ar558f8Awl1rXtTtkZm8u1UxLeDBR4c5G7JG0jnrXbaf41h8M6RZaFoNp9sSyhWESMWIIUY4A5x15OMkk17ea4T+1MG4Zc4yT5Xe6Siv71/h7WevlozkpZhHDySxCfNrpZtv0797rQ9UnWGfUrZLsr9lUtJJu6bVUtz7cVzmmfESz8YOum3mj3Nha6laveaXNPKji8gVtpbapzGw4IU84561z2neO4dalaxv4RY3UqNEpLEIdylcHPK5BIz0rxvwL4G8SeFvGbM8dxM9urw2sahud2Rk5GFGCc89TWGQZfPLaToY20He921ZxstU9ml17dd0b4rMaeIhzUbtrS1ne/a3f+uh9HW7jVfD8DXQDuQ0MhI+/tYoSfrj9a4n4X3R0nxPqugqT5CXsscak9BsLD/0Cu30+1Ol6Ja2ssgaSNMyMOhcnLH8ya878Eo938UdQuo/9UNTlGfpA4/9mFeTw9WhiMFmUI/w+Vtfjy/M3zWLU8LJ/Fzf5XPoy3QR28aAcBQK8u1yARxXkK4OC0a/ngV3eq6wLHQTcpgznEUYP988fp1/CvO7mZX8qNySsjfOx6nv+tedxPiaFSnh6dPWyv8A9u2/4H4Ht5TSmpSm9v8AI9In1az0yFIGZ5ZIlClYl3EYGOewq7pt9BqNolxasWjbI5GCCOCCOxrz9ZvNjK26q7e5+Vfr/hV3w/qb6H5FpKiSxTz/ALyQZDB3OM46Y6DFdGV8WPEYr2eIShB6R3bv0u/+GMKuXpU7x1kd7RRRX3J5IUUUUAFFFFAGXqOoXEW5LSynkYceYU+Uf41hpJK85a43eaeu4YNdhTJYo5l2yoGHvXzebZFWzCSn7Z6bRtp+H56nVSxEaaty/M4LxxpkOq+H2guY/MhJww7j0I9CDXlEXw2B/wCPXU2Qdsr/APWr32/sVWN42yYZBjnqK4K4hk068aGToDwexFfN1syzXJf3eHquHddL97banbSwWEx8bVoKTW197HmFp4TFzrNzo7a6kOpQYJtpuGkQ8h04+ZT6joQQcYr0zwf4Xs/DtqVO24u3OXldc/lmvF/i3c2vi26tXS2a3+xFvIvYyRNIM449FyMgde/Ga4+31r4gaRbstp4nvNiAlIpW8w4/4EDXo4z+1c5wsI4jE26uMlZX9Yr52a0OulwxPBfvqOH3W6te3nd6H0r418LW3iGyBgEdvqERzFMF6+qtjqDXnd0PFWk6nb6UPEMUd7MpMFsb3DuB/dUk5+leOxeKviX4ol+x2uoa5dM52lLdTGPxZQAB9TXs3wu+G1v4bs5dQ8SJBqGvXWC7SfvRAOoVWPVs8lvwHuqeLxnD2F9jWrxkvsw5VPV/4tl1f+bPInl+Hx9X2ns3fq7tfkxl2PiCV8ue5dlPc7Tj8dtdJ4dsF8PaTaRxEteNN9ollbq7d/w6D8K3nZ7ucRxgsWOMDvWhN4Vu5ZwVnidiABGFPH415WI4gx+PoPDqMYRbV1CKjzPonbV+h6eHyrBYOpGpNttbczbt6dhviC6E1pBNE+6BZA7AHpkEZP0zWRc7JICCA3HGfWuli8HaiE+/bjPBUuf8Kp3PgrVVz9n8hl/umXp9DiuBZNj3ZulLy0O+jicND3VNGRp+sQ2lukCwyM6jARRj9a3/AA7HBc6rFe6vMkYhIaGEfcDepPqPfv8ASoLDwBfyuGvbmG2X0jzI39AP1q1qHg/UbFPM064F4AOY2Gx/wPQ/pXdhslx2EqLGRo8zWtnv917kV8Rhal6cKlm+v/B2PQkYOoZSCp5BByDS15v4L1HUoteSxa3nED7vOR0IEZA+9z0549816RX3+XY769R9ryuL2afc+exeGeGnyN36hRRRXecwUUUUAFFFFAEN4u+1kHopI/CuYv7ODU7YxTcNghXHUZrpNSlENhcSHshrnNMhuLrmJfkHBY8CviOJnKWLpUaceaUk7pa6X0/U78JeMXO9rHgWveFfEOkTLbTaS13HF8kN5AQY3TPBPPyn2NbvgnR30oSXV4u69lGGIHCr/dHt6+p+le9Jp7hfmlGfZeKz73SbdDumtomB/iUY/lXPmWHx86H7yPLHr/wbNnvy4jnXh7KaXy6/ecEbyRhgKxHpUlrZ3d++I0YjvjoPqe1deljYow2W0ee2RmtaPT5TGOUjHZcV4OFyipiG1SXNbt/mzkqZioL3VYwtL0yLTV3sQ8+Oo6L9P8a6nToglur4+dxuJrC1O1ubdC7LvjHVl5x9a3NJmE+nW8i90AP1HFfScOUXSxs6VWDi4xuk/XV/8E8zFSc4Kd73LdFFFfcnnhRRRQAUUUUAFFFFABRRRQBFd3ENpbST3MixwxqWZ26AViaF4t03WJvIhd4ZyTsSYbfMHqp6H6da5LxNe3vi/X5tE0URvZaeQ9yzyFFkcH7uQD7ge+T2FJKNT8UKmk2emWmljS7lVlkE+5oSBxsAGcEc574r0IYSKh+8dm9d9l0uutzx6uPqOp+5V0tFo/efWz2Vu56HqNp9tiSFmxCWDSAdWA7fnVmNFjRUjUKqjAAHApFdQwQuC+M4zz9cU+vLVGEZupb3n18j2eZtcvQKR1DqVYAqeCDS0VbSasxGPp9m0eqThwTHEAUJ75/wrYoorjwOBpYGm6dLZtv73+i0+RdSo6juwPNQ21tHbBxCNqO27b2B74qaiutwi5KTWqJu7WCiuc1TxCk9vrFp4fdLvWrKInyAOjdO/Bx6evFcXqN3rfh7UhPpl5qGrta26z6rBcMCqhugUdmxk4HQCuylhZVNG7Pz/rTyOGtjY0tUrrq1/WtrO66I9XorP0HV7PXNLg1DTpRJbyjI9VPdSOxFaFc0ouLs9zsjJSSlHZhRRRSGFFFFABRRRQBwmp+E9S0vVbrVvBdzb2810P8ASbO5XMUhzncp/hOSfbk1nxxaj4H8K69rurTx3Gs3rqx2corE7VHvjcT6cAV6XVLWdMtdZ0y40/UI/Ntp12uucfQg9iDzmuuGKbtGpqtL92l0ucM8DFXlS0ettdE31sec694ettG8GS6xd3E7+IAqSreGVt5mYjCqM4xzjFdJrfi2TSNT0jTjYyXdzdRCSZIQS6D/AGVHU5DenSodN8Aw215aS6hq2papBZENaW93IDHER0OAPmI7Zqv4ctbu7+J/iPUb61miigijtrVpEIDr3Kk9enb1rdzhUTc3zcqb7b2SS9NzlVGpSaVNcnM0u+122/N7G1pni/TLzSbjUbgyWEEExt3F0NpDjtxnJ9q1tJ1Wx1e3M+m3UVzEDtJjOcH0I6iuc8Y6tFBq+j6NbadbXepXcjTwfaG2xRFQcucDJPXgVz3hG71CLxp4zlNvDcXFvDFut7MFEkkA4A3d+oyfesvq8Z03NK3Va9L2/pm31qdOrGnJ83R6Pezf9Jf8A9A8RakdI0a6vxF5vkqG2ZxnkDr+Ncff+JfEFnpVlrMsWnGxuHQCBNxfDdOfWr893qviDw7rVtqWhy6Zm1byi8yv5jYJxgdMYH51xfhrT7zX/BdtrQ11oZtLV/ssJjUxQmP++D1JGOewIrbD0YRg3Uto7PrutNr/AHnNi61WpUSpN2cbrpqnq3ez26dfxPR/EmuzadNY2Wn2outSvS3lRO+1VCjLMx9BWJf3l34htdR8N6jF/ZutCITw+XKTHMoPBB64zwRXPpq2q69oHh/xhYWJuL/TZZIrq2iHM0Z4YoP6e59K1dMvrjxV440rU7XS7+ysNPglWSa8i8oyM4wEUdwOuaFRVKN7K8b3d9pJ6L0enTqVKtKvK13aVrK2ji0rv1WvXoWvhTeWNzpUlv5CQ61Zs0N6GUeaW3E7mPUgn9RTtZ8Gajc67qF3pevS6faamqreQrEGY7Rt+Rj93I4z2rcTwtpsfipvEMSSR6g8XlPschH/ANor3OMDn0Hfmt2uepiLVHUpdd76/n57HZSwv7pUqv2draeV9PLcz9B0iy0LS4dP02ERW0QwB1JPck9yfWtCiiuWTcnd7nZGKirLYKKKKQwooooAKKKKACiiigAooooAx/EfhvS/EUUK6pbeY0JLRSo5R4z/ALLKQRUHhbwppvhk3h00Tlrpg0rTSmRiRnHJ+prforT2s+Tku7djP2NPn9pyq/cMCvP0+E/hxbmZydQaGVy7W/2krH1zjAAJH1NegUU6dapSvyStcVShTq2543sVtOsbXTbKK0sYI4LaIbUjQYCirNFFZt3d2aJJKyCiiikMKKKKACiiigD/2Q==" style="width:100%;height:100%;object-fit:cover;border-radius:50%"></div>
+    <div class="app-title">Ocean Diary</div>
+    <div class="app-sub" id="txt-tagline">Journal de plongée universel</div>
+  </div>
+  <div class="home-bottom">
+    <button class="btn btn-gold" id="btn-start">Commencer mon journal</button>
+    <button class="btn btn-dark" id="btn-admin">🔧 Admin</button>
+    <div class="lang-row">
+      <button class="lang-btn active" id="btn-fr">FR</button>
+      <span style="opacity:0.3">|</span>
+      <button class="lang-btn" id="btn-en">EN</button>
+    </div>
+    <div class="credit">Créé par Justine · Monitrice & Instructrice · Dive N' Smile Bora-Bora</div>
+  </div>
+</div>
+
+<!-- PROFILE -->
+<div class="screen" id="profile">
+  <div class="profile-hero">
+    <h2 id="txt-profile-title">Mon Profil</h2>
+    <p id="txt-profile-sub">Parle-nous un peu de toi</p>
+  </div>
+  <div class="form-body">
+    <div class="form-group">
+      <label class="form-label" id="lbl-name">Nom complet</label>
+      <input class="form-input" id="f-name" type="text">
+    </div>
+    <div class="form-group">
+      <label class="form-label" id="lbl-cert">Niveau de certification</label>
+      <select class="form-select" id="f-cert">
+        <option value="">—</option>
+        <option>Open Water / Niveau 1</option>
+        <option>Advanced / Niveau 2</option>
+        <option>Rescue / Niveau 3</option>
+        <option>Divemaster / MF1</option>
+        <option>Instructor / MF2</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label" id="lbl-fed">Fédération</label>
+      <select class="form-select" id="f-fed">
+        <option value="">—</option>
+        <option>PADI</option><option>SSI</option><option>CMAS</option>
+        <option>FFESSM</option><option>NAUI</option><option>SDI/TDI</option><option>Other</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label" id="lbl-certnum">Numéro de certification</label>
+      <input class="form-input" id="f-certnum" type="text">
+    </div>
+    <button class="btn btn-gold" id="btn-save-profile">Enregistrer</button>
+  </div>
+</div>
+
+<!-- DASHBOARD -->
+<div class="screen" id="dashboard">
+  <div class="dash-hero">
+    <div class="dash-hello"><span id="txt-hello">Bonjour,</span> <span id="dash-name" style="color:#f4c542;font-style:italic"></span> 👋</div>
+    <div class="stats">
+      <div class="stat"><div class="stat-val" id="stat-dives">0</div><div class="stat-lbl" id="lbl-dives">Plongées</div></div>
+      <div class="stat"><div class="stat-val" id="stat-depth">—</div><div class="stat-lbl" id="lbl-depth">Prof. max</div></div>
+      <div class="stat"><div class="stat-val" id="stat-time">—</div><div class="stat-lbl" id="lbl-time">Temps total</div></div>
+    </div>
+  </div>
+  <div class="dive-list">
+    <div class="section-lbl" id="lbl-my-dives">Mes plongées</div>
+    <div id="dive-list-container"></div>
+  </div>
+  <button class="fab" id="btn-new-dive">＋</button>
+</div>
+
+<!-- DIVE FORM -->
+<div class="screen" id="dive-form">
+  <div class="header">
+    <button class="icon-btn" id="btn-back-form">←</button>
+    <h2 id="form-title">Nouvelle plongée</h2>
+    <div style="width:40px"></div>
+  </div>
+  <div class="dive-form-body">
+    <div class="section-title">🌊 <span id="lbl-the-dive">La plongée</span></div>
+    <div class="form-group"><label class="form-label" id="lbl-site">Nom du site</label><input class="form-input" id="f-site" type="text"></div>
+    <div class="form-group"><label class="form-label" id="lbl-loc">Lieu / Pays</label><input class="form-input" id="f-loc" type="text"></div>
+    <div class="form-group"><label class="form-label" id="lbl-date">Date</label><input class="form-input" id="f-date" type="date"></div>
+    <div class="grid2">
+      <div class="form-group"><label class="form-label" id="lbl-depth-f">Prof. max (m)</label><input class="form-input" id="f-depth" type="number" min="0"></div>
+      <div class="form-group"><label class="form-label" id="lbl-dur">Durée (min)</label><input class="form-input" id="f-dur" type="number" min="0"></div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" id="lbl-type">Type</label>
+      <div class="toggle-group">
+        <button class="toggle-btn active" id="btn-guided">Encadrée</button>
+        <button class="toggle-btn" id="btn-auto">Autonome</button>
+      </div>
+    </div>
+
+    <div class="section-title">🐠 <span id="lbl-enc-title">Rencontres</span></div>
+    <div class="enc-wrap" id="enc-tags"></div>
+    <div class="form-group" style="margin-top:12px"><label class="form-label" id="lbl-enc-other">Autres rencontres</label><input class="form-input" id="f-enc-other" type="text"></div>
+
+    <div class="section-title">📓 <span id="lbl-notes-title">Mon récit</span></div>
+    <div class="form-group"><textarea class="form-textarea" id="f-notes" rows="5"></textarea></div>
+
+    <div class="section-title">📷 <span id="lbl-photos-title">Photos</span></div>
+    <div class="photo-drop" id="photo-drop"><div class="photo-drop-icon">🖼️</div><div class="photo-drop-txt" id="lbl-add-photo">Appuyer pour ajouter des photos</div></div>
+    <input type="file" id="photo-input" accept="image/*" multiple style="display:none">
+    <div class="photos-grid" id="photos-grid"></div>
+
+    <div class="section-title">🎓 <span id="lbl-inst-title">Moniteur / Guide</span></div>
+    <div class="form-group"><label class="form-label" id="lbl-inst-name">Nom</label><input class="form-input" id="f-inst-name" type="text"></div>
+    <div class="form-group"><label class="form-label" id="lbl-inst-num">Numéro de moniteur</label><input class="form-input" id="f-inst-num" type="text"></div>
+    <div class="form-group">
+      <label class="form-label" id="lbl-sig">Signature du moniteur</label>
+      <div class="sig-wrap"><canvas id="sig-canvas"></canvas><div class="sig-hint" id="sig-hint">Signer ici</div></div>
+      <button class="btn btn-dark" style="margin-top:8px;padding:8px" id="btn-clear-sig">Effacer la signature</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label" id="lbl-stamp">Tampon du moniteur</label>
+      <div class="photo-drop" id="stamp-drop"><div class="photo-drop-icon">🔏</div><div class="photo-drop-txt" id="lbl-add-stamp">Ajouter une photo du tampon</div></div>
+      <input type="file" id="stamp-input" accept="image/*" style="display:none">
+      <img id="stamp-preview" style="display:none;width:100%;margin-top:8px;border-radius:10px">
+    </div>
+  </div>
+  <div class="save-bar"><button class="btn btn-gold" id="btn-save-dive">Enregistrer la plongée</button></div>
+</div>
+
+<!-- DETAIL -->
+<div class="screen" id="detail">
+  <div class="header">
+    <button class="icon-btn" id="btn-back-detail">←</button>
+    <h2 id="lbl-detail-title">Détail</h2>
+    <button class="icon-btn" id="btn-export">📄</button>
+  </div>
+  <div id="detail-content"></div>
+  <div class="action-bar">
+    <button class="btn btn-gold" style="flex:1" id="btn-edit-dive">Modifier</button>
+    <button class="btn-danger" id="btn-delete-dive">Supprimer</button>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div class="screen" id="admin">
+  <div class="header">
+    <button class="icon-btn" id="btn-back-admin">←</button>
+    <h2>Admin</h2>
+    <div style="width:40px"></div>
+  </div>
+  <div id="admin-login" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px">
+    <div style="font-size:3rem;margin-bottom:20px">🔐</div>
+    <h2 style="font-family:Georgia,serif;font-weight:300;margin-bottom:8px">Admin Access</h2>
+    <p style="font-size:0.8rem;opacity:0.5;margin-bottom:32px">Ocean Diary · Dive N' Smile</p>
+    <input class="form-input" id="admin-pwd" type="password" placeholder="Mot de passe" style="text-align:center;margin-bottom:12px">
+    <button class="btn btn-gold" id="btn-admin-login">Entrer</button>
+  </div>
+  <div id="admin-content" style="display:none;flex:1;overflow-y:auto">
+    <div class="admin-body">
+      <div class="admin-card">
+        <h3>🖼️ Photos du slideshow</h3>
+        <div class="admin-slides" id="admin-slides-grid"></div>
+        <button class="btn btn-dark" id="btn-add-slide">+ Ajouter une photo</button>
+        <input type="file" id="slide-input" accept="image/*" multiple style="display:none">
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== STATE =====
+var lang = localStorage.getItem('od_lang') || 'fr';
+var profile = JSON.parse(localStorage.getItem('od_profile') || 'null');
+var dives = JSON.parse(localStorage.getItem('od_dives') || '[]');
+var slides = JSON.parse(localStorage.getItem('od_slides') || '[]');
+var currentDive = null;
+var editingId = null;
+var diveType = 'guided';
+var selectedEnc = [];
+var photoData = [];
+var stampData = null;
+var sigCtx = null;
+var sigDrawing = false;
+var sigHasContent = false;
+
+// ===== ENCOUNTERS =====
+var ENCOUNTERS = [
+  {fr:'Requin',en:'Shark'},{fr:'Raie Manta',en:'Manta Ray'},{fr:'Raie pastenague',en:'Stingray'},
+  {fr:'Tortue',en:'Sea Turtle'},{fr:'Dauphin',en:'Dolphin'},{fr:'Baleine',en:'Whale'},
+  {fr:'Murène',en:'Moray Eel'},{fr:'Pieuvre',en:'Octopus'},{fr:'Nudibranche',en:'Nudibranch'},
+  {fr:'Barracuda',en:'Barracuda'},{fr:'Napoléon',en:'Napoleon Fish'},{fr:'Mérou',en:'Grouper'},
+  {fr:'Poisson-lion',en:'Lionfish'},{fr:'Poisson-globe',en:'Pufferfish'},{fr:'Crabe',en:'Crab'},
+  {fr:'Crevette',en:'Shrimp'},{fr:'Étoile de mer',en:'Starfish'}
+];
+
+// ===== TRANSLATIONS =====
+var T = {
+  fr: {
+    tagline:'Journal de plongée universel', start:'Commencer mon journal',
+    profile_title:'Mon Profil', profile_sub:'Parle-nous un peu de toi',
+    lbl_name:'Nom complet', lbl_cert:'Niveau de certification',
+    lbl_fed:'Fédération', lbl_certnum:'Numéro de certification',
+    save_profile:'Enregistrer', hello:'Bonjour,',
+    stat_dives:'Plongées', stat_depth:'Prof. max', stat_time:'Temps total',
+    my_dives:'Mes plongées', new_dive:'Nouvelle plongée',
+    the_dive:'La plongée', lbl_site:'Nom du site', lbl_loc:'Lieu / Pays',
+    lbl_date:'Date', lbl_depth:'Prof. max (m)', lbl_dur:'Durée (min)',
+    lbl_type:'Type', guided:'Encadrée', auto:'Autonome',
+    enc_title:'Rencontres', enc_other:'Autres rencontres',
+    notes_title:'Mon récit', photos_title:'Photos', add_photo:'Appuyer pour ajouter des photos',
+    inst_title:'Moniteur / Guide', inst_name:'Nom', inst_num:'Numéro de moniteur',
+    lbl_sig:'Signature du moniteur', sig_hint:'Signer ici', clear_sig:'Effacer la signature',
+    lbl_stamp:'Tampon du moniteur', add_stamp:'Ajouter une photo du tampon',
+    save_dive:'Enregistrer la plongée', detail_title:'Détail de la plongée',
+    edit:'Modifier', delete:'Supprimer', saved:'Plongée enregistrée ✓',
+    deleted:'Plongée supprimée', no_dives:'Aucune plongée pour l\'instant',
+    no_dives_sub:'Appuie sur + pour commencer',
+    credit:"Créé par Justine · Monitrice & Instructrice · Dive N' Smile Bora-Bora"
+  },
+  en: {
+    tagline:'Universal Dive Journal', start:'Start my journal',
+    profile_title:'My Profile', profile_sub:'Tell us about you',
+    lbl_name:'Full name', lbl_cert:'Certification level',
+    lbl_fed:'Federation', lbl_certnum:'Certification number',
+    save_profile:'Save', hello:'Hello,',
+    stat_dives:'Dives', stat_depth:'Max depth', stat_time:'Total time',
+    my_dives:'My dives', new_dive:'New dive',
+    the_dive:'The dive', lbl_site:'Dive site', lbl_loc:'Location / Country',
+    lbl_date:'Date', lbl_depth:'Max depth (m)', lbl_dur:'Duration (min)',
+    lbl_type:'Type', guided:'Guided', auto:'Autonomous',
+    enc_title:'Encounters', enc_other:'Other encounters',
+    notes_title:'My story', photos_title:'Photos', add_photo:'Tap to add photos',
+    inst_title:'Instructor / Guide', inst_name:'Name', inst_num:'Instructor number',
+    lbl_sig:'Instructor signature', sig_hint:'Sign here', clear_sig:'Clear signature',
+    lbl_stamp:'Instructor stamp', add_stamp:'Add stamp photo',
+    save_dive:'Save dive', detail_title:'Dive detail',
+    edit:'Edit', delete:'Delete', saved:'Dive saved ✓',
+    deleted:'Dive deleted', no_dives:'No dives yet',
+    no_dives_sub:'Tap + to start',
+    credit:"Created by Justine · Instructor · Dive N' Smile Bora-Bora"
+  }
+};
+
+function t(k) { return T[lang][k] || k; }
+
+// ===== SCREENS =====
+function show(id) {
+  var screens = document.querySelectorAll('.screen');
+  for (var i = 0; i < screens.length; i++) {
+    screens[i].classList.remove('active');
+  }
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+// ===== LANGUAGE =====
+function setLang(l) {
+  lang = l;
+  localStorage.setItem('od_lang', l);
+  applyLang();
+}
+
+function applyLang() {
+  var m = T[lang];
+  document.getElementById('txt-tagline').textContent = m.tagline;
+  document.getElementById('btn-start').textContent = m.start;
+  document.getElementById('txt-profile-title').textContent = m.profile_title;
+  document.getElementById('txt-profile-sub').textContent = m.profile_sub;
+  document.getElementById('lbl-name').textContent = m.lbl_name;
+  document.getElementById('lbl-cert').textContent = m.lbl_cert;
+  document.getElementById('lbl-fed').textContent = m.lbl_fed;
+  document.getElementById('lbl-certnum').textContent = m.lbl_certnum;
+  document.getElementById('btn-save-profile').textContent = m.save_profile;
+  document.getElementById('txt-hello').textContent = m.hello;
+  document.getElementById('lbl-dives').textContent = m.stat_dives;
+  document.getElementById('lbl-depth').textContent = m.stat_depth;
+  document.getElementById('lbl-time').textContent = m.stat_time;
+  document.getElementById('lbl-my-dives').textContent = m.my_dives;
+  document.getElementById('lbl-the-dive').textContent = m.the_dive;
+  document.getElementById('lbl-site').textContent = m.lbl_site;
+  document.getElementById('lbl-loc').textContent = m.lbl_loc;
+  document.getElementById('lbl-date').textContent = m.lbl_date;
+  document.getElementById('lbl-depth-f').textContent = m.lbl_depth;
+  document.getElementById('lbl-dur').textContent = m.lbl_dur;
+  document.getElementById('lbl-type').textContent = m.lbl_type;
+  document.getElementById('btn-guided').textContent = m.guided;
+  document.getElementById('btn-auto').textContent = m.auto;
+  document.getElementById('lbl-enc-title').textContent = m.enc_title;
+  document.getElementById('lbl-enc-other').textContent = m.enc_other;
+  document.getElementById('lbl-notes-title').textContent = m.notes_title;
+  document.getElementById('lbl-photos-title').textContent = m.photos_title;
+  document.getElementById('lbl-add-photo').textContent = m.add_photo;
+  document.getElementById('lbl-inst-title').textContent = m.inst_title;
+  document.getElementById('lbl-inst-name').textContent = m.inst_name;
+  document.getElementById('lbl-inst-num').textContent = m.inst_num;
+  document.getElementById('lbl-sig').textContent = m.lbl_sig;
+  document.getElementById('sig-hint').textContent = m.sig_hint;
+  document.getElementById('btn-clear-sig').textContent = m.clear_sig;
+  document.getElementById('lbl-stamp').textContent = m.lbl_stamp;
+  document.getElementById('lbl-add-stamp').textContent = m.add_stamp;
+  document.getElementById('btn-save-dive').textContent = m.save_dive;
+  document.getElementById('lbl-detail-title').textContent = m.detail_title;
+  document.getElementById('btn-edit-dive').textContent = m.edit;
+  document.getElementById('btn-delete-dive').textContent = m.delete;
+  document.getElementById('btn-fr').className = 'lang-btn' + (lang === 'fr' ? ' active' : '');
+  document.getElementById('btn-en').className = 'lang-btn' + (lang === 'en' ? ' active' : '');
+  buildEncTags();
+}
+
+// ===== TOAST =====
+function toast(msg) {
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = 'toast show';
+  setTimeout(function() { el.className = 'toast'; }, 2200);
+}
+
+// ===== PROFILE =====
+function startApp() {
+  if (!profile) { show('profile'); }
+  else { showDash(); }
+}
+
+function saveProfile() {
+  var name = document.getElementById('f-name').value.trim();
+  if (!name) { toast('Entrez votre nom'); return; }
+  profile = {
+    name: name,
+    cert: document.getElementById('f-cert').value,
+    fed: document.getElementById('f-fed').value,
+    certNum: document.getElementById('f-certnum').value
+  };
+  localStorage.setItem('od_profile', JSON.stringify(profile));
+  showDash();
+}
+
+// ===== DASHBOARD =====
+function showDash() {
+  show('dashboard');
+  document.getElementById('dash-name').textContent = profile ? profile.name.split(' ')[0] : '';
+  document.getElementById('stat-dives').textContent = dives.length;
+  var depths = dives.filter(function(d) { return d.depth; }).map(function(d) { return parseFloat(d.depth); });
+  document.getElementById('stat-depth').textContent = depths.length ? Math.max.apply(null, depths) + 'm' : '—';
+  var times = dives.filter(function(d) { return d.dur; }).map(function(d) { return parseInt(d.dur); });
+  var total = times.reduce(function(a, b) { return a + b; }, 0);
+  document.getElementById('stat-time').textContent = total ? total + 'min' : '—';
+
+  var container = document.getElementById('dive-list-container');
+  if (!dives.length) {
+    container.innerHTML = '<div class="empty"><div class="empty-icon">🌊</div><div>' + t('no_dives') + '</div><div style="font-size:0.8rem;opacity:0.4;margin-top:8px">' + t('no_dives_sub') + '</div></div>';
+    return;
+  }
+  var html = '';
+  for (var i = dives.length - 1; i >= 0; i--) {
+    var d = dives[i];
+    var num = i + 1;
+    var badge = d.type === 'guided' ? t('guided') : t('auto');
+    html += '<div class="dive-card" data-id="' + d.id + '"><div class="dive-num">' + num + '</div><div class="dive-info"><div class="dive-site">' + (d.site || '—') + '</div><div class="dive-meta">' + (d.date || '') + ' · ' + (d.loc || '') + (d.depth ? ' · ' + d.depth + 'm' : '') + (d.dur ? ' · ' + d.dur + 'min' : '') + '</div></div><div class="dive-badge">' + badge + '</div></div>';
+  }
+  container.innerHTML = html;
+
+  var cards = container.querySelectorAll('.dive-card');
+  for (var j = 0; j < cards.length; j++) {
+    cards[j].addEventListener('click', function() {
+      viewDive(this.getAttribute('data-id'));
+    });
+  }
+}
+
+// ===== DIVE FORM =====
+function newDive() {
+  editingId = null;
+  diveType = 'guided';
+  selectedEnc = [];
+  photoData = [];
+  stampData = null;
+  document.getElementById('f-site').value = '';
+  document.getElementById('f-loc').value = '';
+  document.getElementById('f-date').value = new Date().toISOString().slice(0,10);
+  document.getElementById('f-depth').value = '';
+  document.getElementById('f-dur').value = '';
+  document.getElementById('f-notes').value = '';
+  document.getElementById('f-inst-name').value = '';
+  document.getElementById('f-inst-num').value = '';
+  document.getElementById('f-enc-other').value = '';
+  document.getElementById('stamp-preview').style.display = 'none';
+  document.getElementById('photos-grid').innerHTML = '';
+  document.getElementById('form-title').textContent = t('new_dive');
+  setType('guided');
+  buildEncTags();
+  show('dive-form');
+  initSig(null);
+}
+
+function setType(type) {
+  diveType = type;
+  document.getElementById('btn-guided').className = 'toggle-btn' + (type === 'guided' ? ' active' : '');
+  document.getElementById('btn-auto').className = 'toggle-btn' + (type === 'autonomous' ? ' active' : '');
+}
+
+function buildEncTags() {
+  var wrap = document.getElementById('enc-tags');
+  if (!wrap) return;
+  var html = '';
+  for (var i = 0; i < ENCOUNTERS.length; i++) {
+    var e = ENCOUNTERS[i];
+    var label = lang === 'fr' ? e.fr : e.en;
+    var on = selectedEnc.indexOf(e.fr) >= 0;
+    html += '<button class="enc-tag' + (on ? ' on' : '') + '" data-key="' + e.fr + '">' + label + '</button>';
+  }
+  wrap.innerHTML = html;
+  var tags = wrap.querySelectorAll('.enc-tag');
+  for (var j = 0; j < tags.length; j++) {
+    tags[j].addEventListener('click', function() {
+      var key = this.getAttribute('data-key');
+      var idx = selectedEnc.indexOf(key);
+      if (idx >= 0) {
+        selectedEnc.splice(idx, 1);
+        this.className = 'enc-tag';
+      } else {
+        selectedEnc.push(key);
+        this.className = 'enc-tag on';
+      }
+    });
+  }
+}
+
+function addPhotos(input) {
+  var files = input.files;
+  for (var i = 0; i < files.length; i++) {
+    (function(file) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        photoData.push(e.target.result);
+        renderPhotos();
+      };
+      reader.readAsDataURL(file);
+    })(files[i]);
+  }
+}
+
+function renderPhotos() {
+  var grid = document.getElementById('photos-grid');
+  var html = '';
+  for (var i = 0; i < photoData.length; i++) {
+    html += '<img src="' + photoData[i] + '">';
+  }
+  grid.innerHTML = html;
+}
+
+function addStamp(input) {
+  var file = input.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    stampData = e.target.result;
+    var prev = document.getElementById('stamp-preview');
+    prev.src = stampData;
+    prev.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+// ===== SIGNATURE =====
+function initSig(existing) {
+  var canvas = document.getElementById('sig-canvas');
+  var dpr = window.devicePixelRatio || 1;
+  var w = canvas.offsetWidth || 300;
+  var h = 140;
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  sigCtx = canvas.getContext('2d');
+  sigCtx.scale(dpr, dpr);
+  sigCtx.strokeStyle = '#f4c542';
+  sigCtx.lineWidth = 2;
+  sigCtx.lineCap = 'round';
+  sigCtx.lineJoin = 'round';
+  sigHasContent = false;
+  document.getElementById('sig-hint').style.display = 'flex';
+
+  if (existing) {
+    var img = new Image();
+    img.onload = function() { sigCtx.drawImage(img, 0, 0, w, h); };
+    img.src = existing;
+    sigHasContent = true;
+    document.getElementById('sig-hint').style.display = 'none';
+  }
+
+  function pos(e) {
+    var rect = canvas.getBoundingClientRect();
+    var src = e.touches ? e.touches[0] : e;
+    return { x: src.clientX - rect.left, y: src.clientY - rect.top };
+  }
+
+  canvas.onmousedown = function(e) { sigDrawing = true; sigCtx.beginPath(); var p = pos(e); sigCtx.moveTo(p.x, p.y); };
+  canvas.onmousemove = function(e) { if (!sigDrawing) return; var p = pos(e); sigCtx.lineTo(p.x, p.y); sigCtx.stroke(); sigHasContent = true; document.getElementById('sig-hint').style.display = 'none'; };
+  canvas.onmouseup = function() { sigDrawing = false; };
+  canvas.ontouchstart = function(e) { e.preventDefault(); sigDrawing = true; sigCtx.beginPath(); var p = pos(e); sigCtx.moveTo(p.x, p.y); };
+  canvas.ontouchmove = function(e) { e.preventDefault(); if (!sigDrawing) return; var p = pos(e); sigCtx.lineTo(p.x, p.y); sigCtx.stroke(); sigHasContent = true; document.getElementById('sig-hint').style.display = 'none'; };
+  canvas.ontouchend = function() { sigDrawing = false; };
+}
+
+function clearSig() {
+  var canvas = document.getElementById('sig-canvas');
+  sigCtx.clearRect(0, 0, canvas.width, canvas.height);
+  sigHasContent = false;
+  document.getElementById('sig-hint').style.display = 'flex';
+}
+
+function getSig() {
+  if (!sigHasContent) return null;
+  return document.getElementById('sig-canvas').toDataURL('image/png');
+}
+
+function saveDive() {
+  var site = document.getElementById('f-site').value.trim();
+  if (!site) { toast('Entrez le nom du site'); return; }
+  var dive = {
+    id: editingId || Date.now().toString(),
+    site: site,
+    loc: document.getElementById('f-loc').value.trim(),
+    date: document.getElementById('f-date').value,
+    depth: document.getElementById('f-depth').value,
+    dur: document.getElementById('f-dur').value,
+    type: diveType,
+    enc: selectedEnc.slice(),
+    encOther: document.getElementById('f-enc-other').value.trim(),
+    notes: document.getElementById('f-notes').value.trim(),
+    photos: photoData.slice(),
+    instName: document.getElementById('f-inst-name').value.trim(),
+    instNum: document.getElementById('f-inst-num').value.trim(),
+    sig: getSig(),
+    stamp: stampData
+  };
+  if (editingId) {
+    for (var i = 0; i < dives.length; i++) {
+      if (dives[i].id === editingId) { dives[i] = dive; break; }
+    }
+  } else {
+    dives.push(dive);
+  }
+  localStorage.setItem('od_dives', JSON.stringify(dives));
+  toast(t('saved'));
+  setTimeout(function() { showDash(); }, 600);
+}
+
+// ===== DETAIL =====
+function viewDive(id) {
+  currentDive = id;
+  var d = null;
+  for (var i = 0; i < dives.length; i++) {
+    if (dives[i].id === id) { d = dives[i]; break; }
+  }
+  if (!d) return;
+
+  var encList = [];
+  for (var j = 0; j < d.enc.length; j++) {
+    var key = d.enc[j];
+    for (var k = 0; k < ENCOUNTERS.length; k++) {
+      if (ENCOUNTERS[k].fr === key) {
+        encList.push(lang === 'fr' ? ENCOUNTERS[k].fr : ENCOUNTERS[k].en);
+        break;
+      }
+    }
+  }
+  if (d.encOther) encList.push(d.encOther);
+
+  var html = '<div class="detail-hero"><div class="detail-site">' + d.site + '</div><div class="detail-loc">📍 ' + (d.loc || '—') + ' · ' + (d.date || '—') + '</div></div><div class="detail-body">';
+  html += '<div class="detail-grid">';
+  html += '<div class="detail-stat"><div class="detail-lbl">' + t('stat_depth') + '</div><div class="detail-val">' + (d.depth || '—') + (d.depth ? 'm' : '') + '</div></div>';
+  html += '<div class="detail-stat"><div class="detail-lbl">' + t('lbl_dur') + '</div><div class="detail-val">' + (d.dur || '—') + (d.dur ? 'min' : '') + '</div></div>';
+  html += '<div class="detail-stat" style="grid-column:1/-1"><div class="detail-lbl">' + t('lbl_type') + '</div><div style="margin-top:4px">' + (d.type === 'guided' ? t('guided') : t('auto')) + '</div></div>';
+  html += '</div>';
+  if (encList.length) {
+    html += '<div class="detail-sec">' + t('enc_title') + '</div><div class="enc-wrap">';
+    for (var e = 0; e < encList.length; e++) { html += '<span class="enc-tag on" style="cursor:default">' + encList[e] + '</span>'; }
+    html += '</div>';
+  }
+  if (d.notes) html += '<div class="detail-sec">' + t('notes_title') + '</div><div class="detail-notes">' + d.notes + '</div>';
+  if (d.photos && d.photos.length) {
+    html += '<div class="detail-sec">' + t('photos_title') + '</div><div class="detail-photos">';
+    for (var p = 0; p < d.photos.length; p++) { html += '<img src="' + d.photos[p] + '">'; }
+    html += '</div>';
+  }
+  if (d.instName || d.instNum) html += '<div class="detail-sec">' + t('inst_title') + '</div><div class="detail-stat"><strong>' + (d.instName || '') + '</strong>' + (d.instNum ? '<div style="font-size:0.8rem;opacity:0.6"># ' + d.instNum + '</div>' : '') + '</div>';
+  if (d.sig) html += '<div class="detail-sec">' + t('lbl_sig') + '</div><div class="detail-stat"><img src="' + d.sig + '" style="max-width:100%;border-radius:8px"></div>';
+  if (d.stamp) html += '<div class="detail-sec">' + t('lbl_stamp') + '</div><div class="detail-stat"><img src="' + d.stamp + '" style="max-width:160px;border-radius:8px"></div>';
+  html += '</div>';
+
+  document.getElementById('detail-content').innerHTML = html;
+  show('detail');
+}
+
+function editDive() {
+  var d = null;
+  for (var i = 0; i < dives.length; i++) { if (dives[i].id === currentDive) { d = dives[i]; break; } }
+  if (!d) return;
+  editingId = d.id;
+  diveType = d.type || 'guided';
+  selectedEnc = d.enc ? d.enc.slice() : [];
+  photoData = d.photos ? d.photos.slice() : [];
+  stampData = d.stamp || null;
+  document.getElementById('f-site').value = d.site || '';
+  document.getElementById('f-loc').value = d.loc || '';
+  document.getElementById('f-date').value = d.date || '';
+  document.getElementById('f-depth').value = d.depth || '';
+  document.getElementById('f-dur').value = d.dur || '';
+  document.getElementById('f-notes').value = d.notes || '';
+  document.getElementById('f-inst-name').value = d.instName || '';
+  document.getElementById('f-inst-num').value = d.instNum || '';
+  document.getElementById('f-enc-other').value = d.encOther || '';
+  if (d.stamp) { document.getElementById('stamp-preview').src = d.stamp; document.getElementById('stamp-preview').style.display = 'block'; }
+  else { document.getElementById('stamp-preview').style.display = 'none'; }
+  setType(diveType);
+  buildEncTags();
+  renderPhotos();
+  document.getElementById('form-title').textContent = t('edit');
+  show('dive-form');
+  initSig(d.sig);
+}
+
+function deleteDive() {
+  if (!confirm(t('delete') + '?')) return;
+  dives = dives.filter(function(d) { return d.id !== currentDive; });
+  localStorage.setItem('od_dives', JSON.stringify(dives));
+  toast(t('deleted'));
+  setTimeout(function() { showDash(); }, 400);
+}
+
+// ===== EXPORT PDF =====
+function exportPDF() {
+  var d = null;
+  for (var i = 0; i < dives.length; i++) { if (dives[i].id === currentDive) { d = dives[i]; break; } }
+  if (!d) return;
+  var win = window.open('', '_blank');
+  var encList = [];
+  for (var j = 0; j < d.enc.length; j++) {
+    for (var k = 0; k < ENCOUNTERS.length; k++) {
+      if (ENCOUNTERS[k].fr === d.enc[j]) { encList.push(lang === 'fr' ? ENCOUNTERS[k].fr : ENCOUNTERS[k].en); break; }
+    }
+  }
+  if (d.encOther) encList.push(d.encOther);
+  win.document.write('<html><head><title>Ocean Diary - ' + d.site + '</title><style>body{font-family:Georgia,serif;max-width:700px;margin:40px auto;padding:0 20px;color:#111}h1{font-size:2rem;margin-bottom:4px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0}.cell{border:1px solid #ddd;border-radius:8px;padding:14px}.lbl{font-size:0.7rem;text-transform:uppercase;color:#999;letter-spacing:1px}.val{font-size:1.1rem;margin-top:4px}.enc{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}.enc span{padding:4px 10px;border:1px solid #0d2444;border-radius:20px;font-size:0.8rem}.notes{border:1px solid #ddd;border-radius:8px;padding:16px;white-space:pre-wrap;line-height:1.7}.photos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}.photos img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px}h3{margin-top:24px;margin-bottom:8px;font-size:1rem;color:#0d2444;border-bottom:1px solid #eee;padding-bottom:4px}.footer{margin-top:40px;font-size:0.7rem;color:#aaa;text-align:center;border-top:1px solid #eee;padding-top:16px}</style></head><body>');
+  win.document.write('<h1>🌊 ' + d.site + '</h1><p style="color:#666;font-size:0.85rem">Ocean Diary · ' + (d.date || '') + '</p>');
+  win.document.write('<div class="grid"><div class="cell"><div class="lbl">Lieu</div><div class="val">' + (d.loc || '—') + '</div></div><div class="cell"><div class="lbl">Type</div><div class="val">' + (d.type === 'guided' ? t('guided') : t('auto')) + '</div></div><div class="cell"><div class="lbl">Profondeur</div><div class="val">' + (d.depth || '—') + (d.depth ? ' m' : '') + '</div></div><div class="cell"><div class="lbl">Durée</div><div class="val">' + (d.dur || '—') + (d.dur ? ' min' : '') + '</div></div></div>');
+  if (encList.length) { win.document.write('<h3>Rencontres</h3><div class="enc">'); for (var e = 0; e < encList.length; e++) { win.document.write('<span>' + encList[e] + '</span>'); } win.document.write('</div>'); }
+  if (d.notes) win.document.write('<h3>Récit</h3><div class="notes">' + d.notes + '</div>');
+  if (d.instName || d.instNum) win.document.write('<h3>Moniteur</h3><p>' + (d.instName || '') + (d.instNum ? ' · #' + d.instNum : '') + '</p>');
+  if (d.sig) win.document.write('<h3>Signature</h3><img src="' + d.sig + '" style="max-width:240px;border:1px solid #ddd;border-radius:8px">');
+  if (d.stamp) win.document.write('<h3>Tampon</h3><img src="' + d.stamp + '" style="max-width:160px;border-radius:8px">');
+  if (d.photos && d.photos.length) { win.document.write('<h3>Photos</h3><div class="photos">'); for (var ph = 0; ph < d.photos.length; ph++) { win.document.write('<img src="' + d.photos[ph] + '">'); } win.document.write('</div>'); }
+  win.document.write('<div class="footer">Ocean Diary · Créé par Justine · Dive N\' Smile Bora-Bora</div></body></html>');
+  win.document.close();
+  setTimeout(function() { win.print(); }, 500);
+}
+
+// ===== ADMIN =====
+function goAdmin() {
+  document.getElementById('admin-pwd').value = '';
+  document.getElementById('admin-login').style.display = 'flex';
+  document.getElementById('admin-content').style.display = 'none';
+  show('admin');
+}
+
+function adminLogin() {
+  if (document.getElementById('admin-pwd').value !== 'Diary29.') { toast('Mot de passe incorrect'); return; }
+  document.getElementById('admin-login').style.display = 'none';
+  document.getElementById('admin-content').style.display = 'block';
+  renderAdminSlides();
+}
+
+function renderAdminSlides() {
+  var grid = document.getElementById('admin-slides-grid');
+  var html = '';
+  for (var i = 0; i < slides.length; i++) {
+    html += '<div class="admin-slide"><img src="' + slides[i] + '"><button class="del-btn" data-i="' + i + '">✕</button></div>';
+  }
+  grid.innerHTML = html;
+  var dels = grid.querySelectorAll('.del-btn');
+  for (var j = 0; j < dels.length; j++) {
+    dels[j].addEventListener('click', function() {
+      slides.splice(parseInt(this.getAttribute('data-i')), 1);
+      localStorage.setItem('od_slides', JSON.stringify(slides));
+      renderAdminSlides();
+    });
+  }
+}
+
+function addSlides(input) {
+  var files = input.files;
+  for (var i = 0; i < files.length; i++) {
+    (function(file) {
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        slides.push(e.target.result);
+        localStorage.setItem('od_slides', JSON.stringify(slides));
+        renderAdminSlides();
+        toast('Photo ajoutée');
+      };
+      reader.readAsDataURL(file);
+    })(files[i]);
+  }
+}
+
+// ===== BIND EVENTS =====
+window.onload = function() {
+  applyLang();
+
+  document.getElementById('btn-start').addEventListener('click', function() { startApp(); });
+  document.getElementById('btn-admin').addEventListener('click', function() { goAdmin(); });
+  document.getElementById('btn-fr').addEventListener('click', function() { setLang('fr'); });
+  document.getElementById('btn-en').addEventListener('click', function() { setLang('en'); });
+  document.getElementById('btn-save-profile').addEventListener('click', function() { saveProfile(); });
+  document.getElementById('btn-new-dive').addEventListener('click', function() { newDive(); });
+  document.getElementById('btn-back-form').addEventListener('click', function() { showDash(); });
+  document.getElementById('btn-save-dive').addEventListener('click', function() { saveDive(); });
+  document.getElementById('btn-back-detail').addEventListener('click', function() { showDash(); });
+  document.getElementById('btn-export').addEventListener('click', function() { exportPDF(); });
+  document.getElementById('btn-edit-dive').addEventListener('click', function() { editDive(); });
+  document.getElementById('btn-delete-dive').addEventListener('click', function() { deleteDive(); });
+  document.getElementById('btn-back-admin').addEventListener('click', function() { show('home'); });
+  document.getElementById('btn-admin-login').addEventListener('click', function() { adminLogin(); });
+  document.getElementById('btn-clear-sig').addEventListener('click', function() { clearSig(); });
+  document.getElementById('btn-guided').addEventListener('click', function() { setType('guided'); });
+  document.getElementById('btn-auto').addEventListener('click', function() { setType('autonomous'); });
+  document.getElementById('photo-drop').addEventListener('click', function() { document.getElementById('photo-input').click(); });
+  document.getElementById('photo-input').addEventListener('change', function() { addPhotos(this); });
+  document.getElementById('stamp-drop').addEventListener('click', function() { document.getElementById('stamp-input').click(); });
+  document.getElementById('stamp-input').addEventListener('change', function() { addStamp(this); });
+  document.getElementById('btn-add-slide').addEventListener('click', function() { document.getElementById('slide-input').click(); });
+  document.getElementById('avatar-input').addEventListener('change', function() {
+    var file = this.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      document.getElementById('avatar-img').src = e.target.result;
+      document.getElementById('avatar-img').style.display = 'block';
+      document.getElementById('avatar-emoji').style.display = 'none';
+    };
+    reader.readAsDataURL(file);
+  });
+  document.getElementById('slide-input').addEventListener('change', function() { addSlides(this); });
+};
+</script>
+</body>
+</html>
