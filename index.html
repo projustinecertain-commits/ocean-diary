@@ -1,0 +1,1656 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a1628">
+<title>Ocean Diary</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ocean-deep: #0a1628;
+  --ocean-mid: #0d2444;
+  --ocean-light: #1a4a7a;
+  --ocean-cyan: #00b4d8;
+  --sun-gold: #f4c542;
+  --sun-warm: #f9a825;
+  --white: #f8f9fa;
+  --soft: rgba(248,249,250,0.85);
+  --glass: rgba(10,22,40,0.7);
+  --glass2: rgba(255,255,255,0.08);
+  --radius: 18px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--ocean-deep);
+  color: var(--white);
+  min-height: 100vh;
+  overflow-x: hidden;
+  user-select: none;
+}
+
+/* ===== SCREENS ===== */
+.screen { display: none; min-height: 100vh; flex-direction: column; }
+.screen.active { display: flex !important; }
+
+/* ===== SLIDESHOW HOME ===== */
+#screen-home {
+  position: relative;
+  overflow: hidden;
+  height: 100vh;
+  height: 100dvh;
+}
+
+.slideshow {
+  position: absolute; inset: 0;
+  z-index: 0;
+}
+
+.slide {
+  position: absolute; inset: 0;
+  background-size: cover;
+  background-position: center;
+  opacity: 0;
+  transition: opacity 1.5s ease;
+}
+.slide.active { opacity: 1; }
+
+.slide-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(10,22,40,0.3) 0%,
+    rgba(10,22,40,0.1) 40%,
+    rgba(10,22,40,0.6) 75%,
+    rgba(10,22,40,0.92) 100%
+  );
+}
+
+.home-content {
+  position: relative; z-index: 2;
+  display: flex; flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  height: 100vh;
+  height: 100dvh;
+  padding: 60px 24px 50px;
+  box-sizing: border-box;
+}
+
+.home-top {
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
+}
+
+.logo-wrap {
+  width: 90px; height: 90px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(244,197,66,0.5);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4), 0 0 0 4px rgba(244,197,66,0.1);
+}
+
+.logo-wrap img {
+  width: 80px; height: 80px; border-radius: 50%; object-fit: cover;
+}
+
+.app-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 3rem;
+  font-weight: 300;
+  letter-spacing: 0.05em;
+  color: var(--white);
+  text-shadow: 0 2px 20px rgba(0,0,0,0.5);
+  line-height: 1;
+}
+
+.app-subtitle {
+  font-size: 0.75rem;
+  font-weight: 300;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--sun-gold);
+  opacity: 0.9;
+}
+
+.home-bottom {
+  width: 100%;
+  display: flex; flex-direction: column; gap: 12px;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 17px;
+  background: linear-gradient(135deg, var(--sun-gold), var(--sun-warm));
+  color: var(--ocean-deep);
+  border: none;
+  border-radius: var(--radius);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(244,197,66,0.4);
+  transition: all 0.2s;
+}
+.btn-primary:active { transform: scale(0.97); opacity: 0.9; }
+
+.btn-secondary {
+  width: 100%;
+  padding: 16px;
+  background: var(--glass2);
+  backdrop-filter: blur(10px);
+  color: var(--white);
+  border: 1px solid rgba(255,255,255,0.2);
+  border-radius: var(--radius);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  font-weight: 400;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-secondary:active { background: rgba(255,255,255,0.15); }
+
+.lang-switch {
+  display: flex; justify-content: center; gap: 8px; margin-top: 4px;
+}
+.lang-btn {
+  background: none; border: none;
+  color: rgba(255,255,255,0.5);
+  font-size: 0.8rem; font-weight: 300; letter-spacing: 0.1em;
+  cursor: pointer; padding: 4px 8px;
+  transition: color 0.2s;
+  font-family: 'DM Sans', sans-serif;
+}
+.lang-btn.active { color: var(--sun-gold); }
+
+.credit {
+  text-align: center;
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.35);
+  letter-spacing: 0.08em;
+  margin-top: 6px;
+  font-style: italic;
+}
+
+/* ===== HEADER ===== */
+.header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px;
+  background: var(--ocean-deep);
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  position: sticky; top: 0; z-index: 100;
+}
+
+.header-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.4rem;
+  font-weight: 400;
+  letter-spacing: 0.03em;
+}
+
+.back-btn, .icon-btn {
+  background: none; border: none;
+  color: var(--white); cursor: pointer;
+  width: 40px; height: 40px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  transition: background 0.2s;
+}
+.back-btn:active, .icon-btn:active { background: var(--glass2); }
+
+/* ===== PROFILE SETUP ===== */
+#screen-profile {
+  background: var(--ocean-deep);
+}
+
+.profile-hero {
+  background: linear-gradient(135deg, var(--ocean-mid), var(--ocean-light));
+  padding: 40px 24px 32px;
+  text-align: center;
+}
+
+.profile-avatar {
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.1);
+  border: 2px solid var(--sun-gold);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 2rem;
+  margin: 0 auto 16px;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.profile-avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+.profile-hero h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.8rem; font-weight: 300;
+}
+.profile-hero p { font-size: 0.85rem; opacity: 0.6; margin-top: 4px; }
+
+.form-section {
+  padding: 24px 20px;
+  flex: 1; overflow-y: auto;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sun-gold);
+  margin-bottom: 8px;
+}
+
+.form-input, .form-select, .form-textarea {
+  width: 100%;
+  padding: 14px 16px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  color: var(--white);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s;
+  -webkit-appearance: none;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color: var(--sun-gold);
+  background: rgba(255,255,255,0.09);
+}
+.form-select option { background: var(--ocean-deep); }
+.form-textarea { resize: none; min-height: 90px; line-height: 1.5; }
+
+/* ===== DASHBOARD ===== */
+#screen-dashboard {
+  background: var(--ocean-deep);
+}
+
+.dash-hero {
+  background: linear-gradient(160deg, var(--ocean-mid) 0%, var(--ocean-deep) 100%);
+  padding: 28px 20px 24px;
+}
+
+.dash-greeting {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.7rem; font-weight: 300;
+}
+.dash-greeting span { color: var(--sun-gold); font-style: italic; }
+
+.dash-stats {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 10px; margin-top: 20px;
+}
+
+.stat-card {
+  background: var(--glass2);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  padding: 14px 10px;
+  text-align: center;
+}
+.stat-value {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.9rem; font-weight: 400;
+  color: var(--sun-gold);
+  line-height: 1;
+}
+.stat-label {
+  font-size: 0.65rem; font-weight: 300;
+  text-transform: uppercase; letter-spacing: 0.1em;
+  opacity: 0.6; margin-top: 4px;
+}
+
+.fab {
+  position: fixed; bottom: 28px; right: 24px;
+  width: 60px; height: 60px;
+  background: linear-gradient(135deg, var(--sun-gold), var(--sun-warm));
+  border-radius: 50%;
+  border: none;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem;
+  cursor: pointer;
+  box-shadow: 0 6px 24px rgba(244,197,66,0.5);
+  color: var(--ocean-deep);
+  z-index: 50;
+  transition: transform 0.2s;
+}
+.fab:active { transform: scale(0.92); }
+
+.dive-list { padding: 16px 20px 100px; }
+.section-title {
+  font-size: 0.72rem; font-weight: 500; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--ocean-cyan);
+  margin-bottom: 14px;
+}
+
+.dive-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex; gap: 14px; align-items: flex-start;
+}
+.dive-card:active { background: rgba(255,255,255,0.08); }
+
+.dive-num {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--ocean-light), var(--ocean-cyan));
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem; font-weight: 600;
+  flex-shrink: 0;
+}
+.dive-info { flex: 1; min-width: 0; }
+.dive-site { font-size: 1rem; font-weight: 500; }
+.dive-meta {
+  font-size: 0.78rem; opacity: 0.55; margin-top: 3px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.dive-badge {
+  font-size: 0.65rem; padding: 3px 8px;
+  border-radius: 20px; background: rgba(0,180,216,0.2);
+  color: var(--ocean-cyan); border: 1px solid rgba(0,180,216,0.3);
+  white-space: nowrap; flex-shrink: 0;
+}
+
+.empty-state {
+  text-align: center; padding: 60px 20px;
+  opacity: 0.5;
+}
+.empty-icon { font-size: 3rem; margin-bottom: 12px; }
+.empty-text { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 300; }
+
+/* ===== DIVE FORM ===== */
+#screen-dive {
+  background: var(--ocean-deep);
+  overflow-y: auto;
+}
+
+.dive-form { padding: 20px; padding-bottom: 120px; }
+
+.form-section-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.1rem; font-weight: 400;
+  color: var(--sun-gold);
+  margin: 24px 0 14px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(244,197,66,0.2);
+  display: flex; align-items: center; gap: 8px;
+}
+
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+/* Toggle */
+.toggle-group {
+  display: flex;
+  background: rgba(255,255,255,0.05);
+  border-radius: 10px;
+  padding: 4px;
+  gap: 4px;
+}
+.toggle-btn {
+  flex: 1; padding: 10px 4px;
+  background: none; border: none;
+  color: rgba(255,255,255,0.5);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem; font-weight: 400;
+  border-radius: 8px; cursor: pointer;
+  transition: all 0.2s;
+}
+.toggle-btn.active {
+  background: var(--ocean-light);
+  color: var(--white);
+}
+
+/* Signature */
+.sig-canvas-wrap {
+  border: 1px dashed rgba(255,255,255,0.25);
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(255,255,255,0.03);
+  position: relative;
+}
+canvas#sigCanvas {
+  display: block;
+  width: 100%;
+  height: 140px;
+  touch-action: none;
+  cursor: crosshair;
+}
+.sig-hint {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.8rem; opacity: 0.3; pointer-events: none;
+}
+.sig-clear {
+  margin-top: 8px;
+  background: none; border: none;
+  color: rgba(255,255,255,0.4);
+  font-size: 0.75rem; cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  text-decoration: underline;
+}
+
+/* Photo upload */
+.photo-upload {
+  border: 1px dashed rgba(255,255,255,0.2);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.photo-upload:active { background: rgba(255,255,255,0.05); }
+.photo-upload-icon { font-size: 1.8rem; margin-bottom: 8px; }
+.photo-upload-text { font-size: 0.8rem; opacity: 0.5; }
+
+.photos-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 8px; margin-top: 10px;
+}
+.photo-thumb {
+  aspect-ratio: 1;
+  border-radius: 8px;
+  object-fit: cover;
+  width: 100%;
+}
+
+/* Encounters */
+.encounters-wrap {
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+.enc-tag {
+  padding: 7px 14px;
+  border-radius: 20px;
+  border: 1px solid rgba(255,255,255,0.15);
+  background: none;
+  color: rgba(255,255,255,0.6);
+  font-size: 0.8rem; cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.2s;
+}
+.enc-tag.selected {
+  background: rgba(0,180,216,0.2);
+  border-color: var(--ocean-cyan);
+  color: var(--ocean-cyan);
+}
+
+.save-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  padding: 16px 20px;
+  background: linear-gradient(to top, var(--ocean-deep) 80%, transparent);
+  z-index: 50;
+}
+
+/* ===== DIVE DETAIL ===== */
+#screen-detail {
+  background: var(--ocean-deep);
+  overflow-y: auto;
+}
+
+.detail-hero {
+  min-height: 200px;
+  background: linear-gradient(160deg, var(--ocean-mid), var(--ocean-light));
+  display: flex; flex-direction: column;
+  justify-content: flex-end;
+  padding: 20px;
+  position: relative;
+}
+
+.detail-num {
+  position: absolute; top: 20px; right: 20px;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 4rem; font-weight: 300;
+  opacity: 0.15; line-height: 1;
+}
+
+.detail-site {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2rem; font-weight: 300; line-height: 1.1;
+}
+.detail-location { font-size: 0.85rem; opacity: 0.6; margin-top: 6px; }
+
+.detail-body { padding: 20px; padding-bottom: 100px; }
+
+.detail-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 10px; margin-bottom: 20px;
+}
+
+.detail-stat {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.09);
+  border-radius: 14px;
+  padding: 14px;
+}
+.detail-stat-label {
+  font-size: 0.65rem; letter-spacing: 0.1em;
+  text-transform: uppercase; opacity: 0.5;
+}
+.detail-stat-value {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.6rem; font-weight: 300;
+  margin-top: 2px; color: var(--sun-gold);
+}
+.detail-stat-unit { font-size: 0.75rem; opacity: 0.7; }
+
+.detail-section-title {
+  font-size: 0.72rem; font-weight: 500; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--ocean-cyan);
+  margin: 20px 0 10px;
+}
+
+.detail-notes {
+  background: rgba(255,255,255,0.04);
+  border-radius: 14px; padding: 16px;
+  font-size: 0.9rem; line-height: 1.7;
+  opacity: 0.85; white-space: pre-wrap;
+}
+
+.detail-sig {
+  background: rgba(255,255,255,0.04);
+  border-radius: 14px; padding: 16px;
+}
+.detail-sig-label { font-size: 0.75rem; opacity: 0.5; margin-bottom: 8px; }
+.detail-sig img { max-width: 100%; border-radius: 8px; }
+
+.enc-list { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.detail-photos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.detail-photos img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; }
+
+.action-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  display: flex; gap: 10px;
+  padding: 16px 20px;
+  background: linear-gradient(to top, var(--ocean-deep) 80%, transparent);
+  z-index: 50;
+}
+.btn-danger {
+  flex: 0;
+  padding: 14px 20px;
+  background: rgba(220,38,38,0.15);
+  border: 1px solid rgba(220,38,38,0.3);
+  color: #f87171;
+  border-radius: var(--radius);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+/* ===== ADMIN ===== */
+#screen-admin {
+  background: var(--ocean-deep);
+}
+
+.admin-login {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 40px 24px;
+}
+
+.admin-icon { font-size: 3rem; margin-bottom: 20px; }
+.admin-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.8rem; font-weight: 300;
+  margin-bottom: 8px;
+}
+.admin-sub { font-size: 0.8rem; opacity: 0.5; margin-bottom: 32px; }
+
+.admin-content {
+  flex: 1; overflow-y: auto; padding: 20px;
+}
+
+.admin-section {
+  background: rgba(255,255,255,0.04);
+  border-radius: 16px; padding: 20px;
+  margin-bottom: 16px;
+}
+.admin-section h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.2rem; margin-bottom: 12px;
+  color: var(--sun-gold);
+}
+
+.admin-slides-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 8px; margin-bottom: 12px;
+}
+.admin-slide {
+  aspect-ratio: 1; border-radius: 8px;
+  overflow: hidden; position: relative;
+  cursor: pointer;
+}
+.admin-slide img { width: 100%; height: 100%; object-fit: cover; }
+.admin-slide-del {
+  position: absolute; top: 4px; right: 4px;
+  background: rgba(220,38,38,0.8);
+  border: none; color: white;
+  width: 22px; height: 22px; border-radius: 50%;
+  font-size: 0.7rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7);
+  z-index: 200;
+  display: none;
+  align-items: flex-end;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--ocean-mid);
+  border-radius: 24px 24px 0 0;
+  padding: 24px;
+  width: 100%;
+  max-height: 50vh;
+  overflow-y: auto;
+}
+.modal-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.3rem; margin-bottom: 16px;
+}
+
+/* ===== TOAST ===== */
+.toast {
+  position: fixed; bottom: 100px; left: 50%;
+  transform: translateX(-50%);
+  background: rgba(244,197,66,0.95);
+  color: var(--ocean-deep);
+  padding: 10px 20px;
+  border-radius: 20px;
+  font-size: 0.85rem; font-weight: 500;
+  z-index: 999; opacity: 0;
+  transition: opacity 0.3s;
+  white-space: nowrap;
+}
+.toast.show { opacity: 1; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 2px; }
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ===== HOME ===== -->
+<div class="screen active" id="screen-home">
+  <div class="slideshow" id="slideshow"></div>
+  <div class="home-content">
+    <div class="home-top">
+      <div class="logo-wrap">
+        <span style="font-size:2.5rem">🤿</span>
+      </div>
+      <div class="app-title">Ocean Diary</div>
+      <div class="app-subtitle" data-i18n="home_tagline">Universal Dive Journal</div>
+    </div>
+    <div class="home-bottom">
+      <button id="btnStart" class="btn-primary" id="btnStart" data-i18n="home_start">Commencer mon journal</button>
+      <button class="btn-secondary" id="btnAdmin" data-i18n="home_admin">🔧 Admin</button>
+      <div class="lang-switch">
+        <button class="lang-btn active" id="btnFR">FR</button>
+        <span style="opacity:0.3">|</span>
+        <button class="lang-btn" id="btnEN">EN</button>
+      </div>
+      <div class="credit" data-i18n="home_credit">Created by Justine · Dive N' Smile Bora-Bora</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== PROFILE SETUP ===== -->
+<div class="screen" id="screen-profile">
+  <div class="profile-hero">
+    <div class="profile-avatar" id="avatarWrap" onclick="document.getElementById('avatarInput').click()">
+      🤿
+      <img id="avatarImg" style="display:none">
+    </div>
+    <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="App.setAvatar(this)">
+    <h2 data-i18n="profile_title">My Profile</h2>
+    <p data-i18n="profile_sub">Tell us a little about you</p>
+  </div>
+  <div class="form-section">
+    <div class="form-group">
+      <label class="form-label" data-i18n="profile_name">Full name</label>
+      <input class="form-input" id="profileName" type="text" autocomplete="name">
+    </div>
+    <div class="form-group">
+      <label class="form-label" data-i18n="profile_cert">Certification level</label>
+      <select class="form-select" id="profileCert">
+        <option value="">—</option>
+        <option>Open Water / Niveau 1</option>
+        <option>Advanced / Niveau 2</option>
+        <option>Rescue / Niveau 3</option>
+        <option>Divemaster / MF1</option>
+        <option>Instructor / MF2</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label" data-i18n="profile_fed">Federation</label>
+      <select class="form-select" id="profileFed">
+        <option value="">—</option>
+        <option>PADI</option>
+        <option>SSI</option>
+        <option>CMAS</option>
+        <option>FFESSM</option>
+        <option>NAUI</option>
+        <option>SDI/TDI</option>
+        <option>RAID</option>
+        <option>Other / Autre</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label" data-i18n="profile_num">Certification number</label>
+      <input class="form-input" id="profileCertNum" type="text">
+    </div>
+    <button class="btn-primary" id="btnSaveProfile" data-i18n="profile_save">Save & go to my journal</button>
+  </div>
+</div>
+
+<!-- ===== DASHBOARD ===== -->
+<div class="screen" id="screen-dashboard">
+  <div class="dash-hero">
+    <div class="dash-greeting">
+      <span data-i18n="dash_hello">Hello,</span> <span id="dashName" class="dash-greeting"></span> 👋
+    </div>
+    <div class="dash-stats">
+      <div class="stat-card">
+        <div class="stat-value" id="statDives">0</div>
+        <div class="stat-label" data-i18n="stat_dives">Dives</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="statDepth">—</div>
+        <div class="stat-label" data-i18n="stat_depth">Max depth</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="statTime">—</div>
+        <div class="stat-label" data-i18n="stat_time">Total time</div>
+      </div>
+    </div>
+  </div>
+  <div class="dive-list">
+    <div class="section-title" data-i18n="dash_dives">My dives</div>
+    <div id="diveListContainer"></div>
+  </div>
+  <button class="fab" id="btnNewDive" title="New dive">＋</button>
+</div>
+
+<!-- ===== DIVE FORM ===== -->
+<div class="screen" id="screen-dive">
+  <div class="header">
+    <button class="back-btn" id="btnBackToDash">←</button>
+    <div class="header-title" id="diveFormTitle" data-i18n="dive_new">New dive</div>
+    <div style="width:40px"></div>
+  </div>
+  <div class="dive-form">
+
+    <!-- BASICS -->
+    <div class="form-section-title">🌊 <span data-i18n="dive_basics">The dive</span></div>
+
+    <div class="form-group">
+      <label class="form-label" data-i18n="dive_site">Dive site</label>
+      <input class="form-input" id="fSite" type="text">
+    </div>
+    <div class="form-group">
+      <label class="form-label" data-i18n="dive_location">Location / Country</label>
+      <input class="form-input" id="fLocation" type="text">
+    </div>
+    <div class="form-group">
+      <label class="form-label" data-i18n="dive_date">Date</label>
+      <input class="form-input" id="fDate" type="date">
+    </div>
+
+    <div class="grid2">
+      <div class="form-group">
+        <label class="form-label" data-i18n="dive_depth">Max depth (m)</label>
+        <input class="form-input" id="fDepth" type="number" min="0" max="300">
+      </div>
+      <div class="form-group">
+        <label class="form-label" data-i18n="dive_duration">Duration (min)</label>
+        <input class="form-input" id="fDuration" type="number" min="0">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" data-i18n="dive_type">Type</label>
+      <div class="toggle-group">
+        <button class="toggle-btn active" id="typeGuided" onclick="App.setType('guided')" data-i18n="type_guided">Guided / Encadrée</button>
+        <button class="toggle-btn" id="typeAuto" onclick="App.setType('autonomous')" data-i18n="type_auto">Autonomous / Autonome</button>
+      </div>
+    </div>
+
+    <!-- ENCOUNTERS -->
+    <div class="form-section-title">🐠 <span data-i18n="dive_enc">Encounters</span></div>
+    <div class="encounters-wrap" id="encounterTags"></div>
+    <div class="form-group" style="margin-top:12px">
+      <label class="form-label" data-i18n="enc_custom">Other encounters</label>
+      <input class="form-input" id="fEncCustom" type="text" placeholder="...">
+    </div>
+
+    <!-- NOTES -->
+    <div class="form-section-title">📓 <span data-i18n="dive_notes">My story</span></div>
+    <div class="form-group">
+      <textarea class="form-textarea" id="fNotes" rows="5" style="min-height:130px" placeholder="..."></textarea>
+    </div>
+
+    <!-- PHOTOS -->
+    <div class="form-section-title">📷 <span data-i18n="dive_photos">Photos</span></div>
+    <div class="photo-upload" onclick="document.getElementById('photoInput').click()">
+      <div class="photo-upload-icon">🖼️</div>
+      <div class="photo-upload-text" data-i18n="photo_add">Tap to add photos</div>
+    </div>
+    <input type="file" id="photoInput" accept="image/*" multiple style="display:none" onchange="App.addPhotos(this)">
+    <div class="photos-grid" id="photosGrid"></div>
+
+    <!-- INSTRUCTOR -->
+    <div class="form-section-title">🎓 <span data-i18n="dive_instructor">Instructor / Guide</span></div>
+    <div class="form-group">
+      <label class="form-label" data-i18n="inst_name">Name</label>
+      <input class="form-input" id="fInstName" type="text">
+    </div>
+    <div class="form-group">
+      <label class="form-label" data-i18n="inst_num">Instructor number</label>
+      <input class="form-input" id="fInstNum" type="text">
+    </div>
+    <div class="form-group">
+      <label class="form-label" data-i18n="inst_sig">Instructor signature</label>
+      <div class="sig-canvas-wrap">
+        <canvas id="sigCanvas"></canvas>
+        <div class="sig-hint" id="sigHint" data-i18n="sig_hint">Sign here</div>
+      </div>
+      <button class="sig-clear" id="btnClearSig" data-i18n="sig_clear">Clear signature</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label" data-i18n="inst_stamp">Instructor stamp (photo)</label>
+      <div class="photo-upload" onclick="document.getElementById('stampInput').click()">
+        <div class="photo-upload-icon">🔏</div>
+        <div class="photo-upload-text" data-i18n="stamp_add">Add stamp photo</div>
+      </div>
+      <input type="file" id="stampInput" accept="image/*" style="display:none" onchange="App.addStamp(this)">
+      <img id="stampPreview" style="display:none;width:100%;margin-top:8px;border-radius:10px">
+    </div>
+
+  </div>
+  <div class="save-bar">
+    <button class="btn-primary" id="btnSaveDive" data-i18n="dive_save">Save dive</button>
+  </div>
+</div>
+
+<!-- ===== DIVE DETAIL ===== -->
+<div class="screen" id="screen-detail">
+  <div class="header" style="position:sticky;top:0">
+    <button class="back-btn" id="btnBackToDash">←</button>
+    <div class="header-title" data-i18n="detail_title">Dive detail</div>
+    <button class="icon-btn" id="btnExportPDF" title="Export PDF">📄</button>
+  </div>
+  <div id="detailContent"></div>
+  <div class="action-bar">
+    <button class="btn-primary" style="flex:1" id="btnEditDive" data-i18n="detail_edit">Edit</button>
+    <button class="btn-danger" id="btnDeleteDive" data-i18n="detail_delete">Delete</button>
+  </div>
+</div>
+
+<!-- ===== ADMIN ===== -->
+<div class="screen" id="screen-admin">
+  <div class="header">
+    <button class="back-btn" id="btnBackToHome">←</button>
+    <div class="header-title">Admin</div>
+    <div style="width:40px"></div>
+  </div>
+  <div id="adminLoginWrap" class="admin-login">
+    <div class="admin-icon">🔐</div>
+    <div class="admin-title">Admin Access</div>
+    <div class="admin-sub">Ocean Diary · Dive N' Smile</div>
+    <div class="form-group" style="width:100%">
+      <input class="form-input" id="adminPwd" type="password" placeholder="Password" style="text-align:center">
+    </div>
+    <button class="btn-primary" style="margin-top:12px" id="btnAdminLogin">Enter</button>
+  </div>
+  <div id="adminContentWrap" style="display:none;flex:1;overflow-y:auto">
+    <div class="admin-content">
+      <div class="admin-section">
+        <h3>🖼️ Slideshow photos</h3>
+        <div class="admin-slides-grid" id="adminSlidesGrid"></div>
+        <button class="btn-secondary" onclick="document.getElementById('adminPhotoInput').click()" style="margin-top:8px">
+          + Add photo
+        </button>
+        <input type="file" id="adminPhotoInput" accept="image/*" multiple style="display:none" onchange="App.adminAddSlide(this)">
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ========== TRANSLATIONS ==========
+const TRANSLATIONS = {
+  fr: {
+    home_tagline: 'Journal de plongée universel',
+    home_start: 'Commencer mon journal',
+    home_admin: '🔧 Admin',
+    home_credit: "Créé par Justine · Monitrice & Instructrice · Dive N' Smile Bora-Bora",
+    profile_title: 'Mon profil',
+    profile_sub: 'Parle-nous un peu de toi',
+    profile_name: 'Nom complet',
+    profile_cert: 'Niveau de certification',
+    profile_fed: 'Fédération',
+    profile_num: 'Numéro de certification',
+    profile_save: 'Enregistrer et accéder à mon journal',
+    dash_hello: 'Bonjour,',
+    stat_dives: 'Plongées',
+    stat_depth: 'Prof. max',
+    stat_time: 'Temps total',
+    dash_dives: 'Mes plongées',
+    dive_new: 'Nouvelle plongée',
+    dive_basics: 'La plongée',
+    dive_site: 'Nom du site',
+    dive_location: 'Lieu / Pays',
+    dive_date: 'Date',
+    dive_depth: 'Profondeur max (m)',
+    dive_duration: 'Durée (min)',
+    dive_type: 'Type',
+    type_guided: 'Encadrée',
+    type_auto: 'Autonome',
+    dive_enc: 'Rencontres',
+    enc_custom: 'Autres rencontres',
+    dive_notes: 'Mon récit',
+    dive_photos: 'Photos',
+    photo_add: 'Appuyer pour ajouter des photos',
+    dive_instructor: 'Moniteur / Guide',
+    inst_name: 'Nom',
+    inst_num: 'Numéro de moniteur',
+    inst_sig: 'Signature du moniteur',
+    sig_hint: 'Signer ici',
+    sig_clear: 'Effacer la signature',
+    inst_stamp: 'Tampon du moniteur (photo)',
+    stamp_add: 'Ajouter une photo du tampon',
+    dive_save: 'Enregistrer la plongée',
+    detail_title: 'Détail de la plongée',
+    detail_edit: 'Modifier',
+    detail_delete: 'Supprimer',
+    saved: 'Plongée enregistrée ✓',
+    deleted: 'Plongée supprimée',
+    no_dives: 'Aucune plongée pour l'instant',
+    no_dives_sub: 'Appuie sur + pour commencer',
+    guided_label: 'Encadrée',
+    auto_label: 'Autonome',
+    enc_section: 'Rencontres',
+    notes_section: 'Mon récit',
+    photos_section: 'Photos',
+    instructor_section: 'Moniteur',
+    signature_section: 'Signature',
+    stamp_section: 'Tampon',
+    min: 'min',
+    meters: 'm',
+  },
+  en: {
+    home_tagline: 'Universal Dive Journal',
+    home_start: 'Start my journal',
+    home_admin: '🔧 Admin',
+    home_credit: "Created by Justine · Instructor · Dive N' Smile Bora-Bora",
+    profile_title: 'My Profile',
+    profile_sub: 'Tell us a little about you',
+    profile_name: 'Full name',
+    profile_cert: 'Certification level',
+    profile_fed: 'Federation',
+    profile_num: 'Certification number',
+    profile_save: 'Save & go to my journal',
+    dash_hello: 'Hello,',
+    stat_dives: 'Dives',
+    stat_depth: 'Max depth',
+    stat_time: 'Total time',
+    dash_dives: 'My dives',
+    dive_new: 'New dive',
+    dive_basics: 'The dive',
+    dive_site: 'Dive site',
+    dive_location: 'Location / Country',
+    dive_date: 'Date',
+    dive_depth: 'Max depth (m)',
+    dive_duration: 'Duration (min)',
+    dive_type: 'Type',
+    type_guided: 'Guided',
+    type_auto: 'Autonomous',
+    dive_enc: 'Encounters',
+    enc_custom: 'Other encounters',
+    dive_notes: 'My story',
+    dive_photos: 'Photos',
+    photo_add: 'Tap to add photos',
+    dive_instructor: 'Instructor / Guide',
+    inst_name: 'Name',
+    inst_num: 'Instructor number',
+    inst_sig: 'Instructor signature',
+    sig_hint: 'Sign here',
+    sig_clear: 'Clear signature',
+    inst_stamp: 'Instructor stamp (photo)',
+    stamp_add: 'Add stamp photo',
+    dive_save: 'Save dive',
+    detail_title: 'Dive detail',
+    detail_edit: 'Edit',
+    detail_delete: 'Delete',
+    saved: 'Dive saved ✓',
+    deleted: 'Dive deleted',
+    no_dives: 'No dives yet',
+    no_dives_sub: 'Tap + to start',
+    guided_label: 'Guided',
+    auto_label: 'Autonomous',
+    enc_section: 'Encounters',
+    notes_section: 'My story',
+    photos_section: 'Photos',
+    instructor_section: 'Instructor',
+    signature_section: 'Signature',
+    stamp_section: 'Stamp',
+    min: 'min',
+    meters: 'm',
+  }
+};
+
+const ENCOUNTERS = [
+  {fr:'Requin', en:'Shark'},
+  {fr:'Raie Manta', en:'Manta Ray'},
+  {fr:'Raie pastenague', en:'Stingray'},
+  {fr:'Tortue', en:'Sea Turtle'},
+  {fr:'Dauphin', en:'Dolphin'},
+  {fr:'Baleine', en:'Whale'},
+  {fr:'Murène', en:'Moray Eel'},
+  {fr:'Pieuvre', en:'Octopus'},
+  {fr:'Nudibranche', en:'Nudibranch'},
+  {fr:'Barracuda', en:'Barracuda'},
+  {fr:'Napoléon', en:'Napoleon Fish'},
+  {fr:'Mérou', en:'Grouper'},
+  {fr:'Poisson-lion', en:'Lionfish'},
+  {fr:'Poisson-coffre', en:'Boxfish'},
+  {fr:'Poisson-globe', en:'Pufferfish'},
+  {fr:'Crabe', en:'Crab'},
+  {fr:'Crevette', en:'Shrimp'},
+  {fr:'Corail', en:'Coral'},
+  {fr:'Étoile de mer', en:'Starfish'},
+];
+
+// ========== DEFAULT SLIDES ==========
+const DEFAULT_SLIDES = [];
+// Slides loaded from admin panel only
+
+// ========== APP ==========
+const App = (function() {
+  let lang = localStorage.getItem('od_lang') || 'fr';
+  let profile = JSON.parse(localStorage.getItem('od_profile') || 'null');
+  let dives = JSON.parse(localStorage.getItem('od_dives') || '[]');
+  let slides = JSON.parse(localStorage.getItem('od_slides') || 'null') || DEFAULT_SLIDES;
+  let currentDive = null;
+  let editingDiveId = null;
+  let diveType = 'guided';
+  let selectedEnc = [];
+  let photoData = [];
+  let stampData = null;
+  let sigCtx = null, sigDrawing = false, sigHasContent = false;
+  let slideIdx = 0, slideInterval = null;
+
+  function t(key) { return TRANSLATIONS[lang][key] || key; }
+
+  function applyLang() {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      el.textContent = t(key);
+    });
+    document.querySelectorAll('.lang-btn').forEach(b => {
+      b.classList.toggle('active', b.textContent === lang.toUpperCase());
+    });
+    buildEncounterTags();
+  }
+
+  function setLang(l) {
+    lang = l;
+    localStorage.setItem('od_lang', l);
+    applyLang();
+  }
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(function(s) { 
+      s.classList.remove('active'); 
+      s.style.display = 'none';
+    });
+    var el = document.getElementById(id);
+    el.classList.add('active');
+    el.style.display = 'flex';
+    window.scrollTo(0,0);
+  }
+
+  function showHome() { showScreen('screen-home'); startSlideshow(); }
+  function showDash() { showScreen('screen-dashboard'); renderDash(); }
+
+  // ---- SLIDESHOW ----
+  function startSlideshow() {
+    const container = document.getElementById('slideshow');
+    container.innerHTML = '';
+    if (!slides || slides.length === 0) {
+      // Beautiful gradient background when no slides
+      container.style.background = 'linear-gradient(160deg, #0a1628 0%, #0d2444 40%, #1a4a7a 100%)';
+      return;
+    }
+    slides.forEach(function(src, i) {
+      var d = document.createElement('div');
+      d.className = 'slide' + (i === 0 ? ' active' : '');
+      d.style.backgroundImage = 'url(' + src + ')';
+      container.appendChild(d);
+    });
+    slideIdx = 0;
+    clearInterval(slideInterval);
+    slideInterval = setInterval(function() {
+      var all = container.querySelectorAll('.slide');
+      if (all.length === 0) return;
+      all[slideIdx].classList.remove('active');
+      slideIdx = (slideIdx + 1) % all.length;
+      all[slideIdx].classList.add('active');
+    }, 4000);
+  }
+
+  // ---- PROFILE ----
+  function startApp() {
+    if (!profile) { showScreen('screen-profile'); }
+    else { showDash(); }
+  }
+
+  function setAvatar(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = document.getElementById('avatarImg');
+      img.src = e.target.result;
+      img.style.display = 'block';
+      document.getElementById('avatarWrap').querySelector('span, div, :not(img)');
+      document.getElementById('avatarWrap').firstChild.textContent = '';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function saveProfile() {
+    const name = document.getElementById('profileName').value.trim();
+    if (!name) { toast('Please enter your name'); return; }
+    profile = {
+      name,
+      cert: document.getElementById('profileCert').value,
+      fed: document.getElementById('profileFed').value,
+      certNum: document.getElementById('profileCertNum').value,
+    };
+    localStorage.setItem('od_profile', JSON.stringify(profile));
+    showDash();
+  }
+
+  // ---- DASHBOARD ----
+  function renderDash() {
+    document.getElementById('dashName').textContent = profile ? profile.name.split(' ')[0] : '';
+    document.getElementById('statDives').textContent = dives.length;
+    const depths = dives.filter(d=>d.depth).map(d=>parseFloat(d.depth));
+    document.getElementById('statDepth').textContent = depths.length ? Math.max(...depths)+'m' : '—';
+    const times = dives.filter(d=>d.duration).map(d=>parseInt(d.duration));
+    const total = times.reduce((a,b)=>a+b,0);
+    document.getElementById('statTime').textContent = total ? total+'min' : '—';
+
+    const container = document.getElementById('diveListContainer');
+    if (!dives.length) {
+      container.innerHTML = `<div class="empty-state">
+        <div class="empty-icon">🌊</div>
+        <div class="empty-text">${t('no_dives')}</div>
+        <div style="font-size:0.8rem;opacity:0.4;margin-top:8px">${t('no_dives_sub')}</div>
+      </div>`;
+      return;
+    }
+    container.innerHTML = dives.slice().reverse().map((d,i) => {
+      const num = dives.length - i;
+      const badge = d.type === 'guided' ? t('guided_label') : t('auto_label');
+      return `<div class="dive-card" onclick="App.viewDive('${d.id}')">
+        <div class="dive-num">${num}</div>
+        <div class="dive-info">
+          <div class="dive-site">${d.site || '—'}</div>
+          <div class="dive-meta">${d.date||''} · ${d.location||''} · ${d.depth?d.depth+'m':''} ${d.duration?d.duration+'min':''}</div>
+        </div>
+        <div class="dive-badge">${badge}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // ---- DIVE FORM ----
+  function newDive() {
+    editingDiveId = null;
+    diveType = 'guided';
+    selectedEnc = [];
+    photoData = [];
+    stampData = null;
+    clearForm();
+    document.getElementById('fDate').value = new Date().toISOString().slice(0,10);
+    document.getElementById('diveFormTitle').textContent = t('dive_new');
+    showScreen('screen-dive');
+    initSig();
+    buildEncounterTags();
+  }
+
+  function editDive() {
+    const d = dives.find(x=>x.id===currentDive);
+    if (!d) return;
+    editingDiveId = d.id;
+    diveType = d.type || 'guided';
+    selectedEnc = d.encounters || [];
+    photoData = d.photos || [];
+    stampData = d.stamp || null;
+    document.getElementById('fSite').value = d.site||'';
+    document.getElementById('fLocation').value = d.location||'';
+    document.getElementById('fDate').value = d.date||'';
+    document.getElementById('fDepth').value = d.depth||'';
+    document.getElementById('fDuration').value = d.duration||'';
+    document.getElementById('fNotes').value = d.notes||'';
+    document.getElementById('fInstName').value = d.instName||'';
+    document.getElementById('fInstNum').value = d.instNum||'';
+    document.getElementById('fEncCustom').value = d.encCustom||'';
+    setType(diveType);
+    buildEncounterTags();
+    renderPhotosGrid();
+    if (d.stamp) { document.getElementById('stampPreview').src = d.stamp; document.getElementById('stampPreview').style.display='block'; }
+    document.getElementById('diveFormTitle').textContent = t('detail_edit');
+    showScreen('screen-dive');
+    initSig(d.signature);
+  }
+
+  function clearForm() {
+    ['fSite','fLocation','fDate','fDepth','fDuration','fNotes','fInstName','fInstNum','fEncCustom'].forEach(id=>{
+      document.getElementById(id).value='';
+    });
+    document.getElementById('stampPreview').style.display='none';
+    document.getElementById('photosGrid').innerHTML='';
+    setType('guided');
+  }
+
+  function setType(type) {
+    diveType = type;
+    document.getElementById('typeGuided').classList.toggle('active', type==='guided');
+    document.getElementById('typeAuto').classList.toggle('active', type==='autonomous');
+  }
+
+  function buildEncounterTags() {
+    const wrap = document.getElementById('encounterTags');
+    if (!wrap) return;
+    wrap.innerHTML = ENCOUNTERS.map(e => {
+      const label = lang==='fr' ? e.fr : e.en;
+      const sel = selectedEnc.includes(e.fr);
+      return `<button class="enc-tag${sel?' selected':''}" onclick="App.toggleEnc('${e.fr}', this)">${label}</button>`;
+    }).join('');
+  }
+
+  function toggleEnc(key, btn) {
+    if (selectedEnc.includes(key)) {
+      selectedEnc = selectedEnc.filter(e=>e!==key);
+      btn.classList.remove('selected');
+    } else {
+      selectedEnc.push(key);
+      btn.classList.add('selected');
+    }
+  }
+
+  function addPhotos(input) {
+    Array.from(input.files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        photoData.push(e.target.result);
+        renderPhotosGrid();
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function renderPhotosGrid() {
+    const grid = document.getElementById('photosGrid');
+    grid.innerHTML = photoData.map(src => `<img src="${src}" class="photo-thumb">`).join('');
+  }
+
+  function addStamp(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      stampData = e.target.result;
+      const prev = document.getElementById('stampPreview');
+      prev.src = stampData;
+      prev.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // --- SIGNATURE ---
+  function initSig(existing) {
+    const canvas = document.getElementById('sigCanvas');
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = canvas.offsetWidth * dpr;
+    canvas.height = canvas.offsetHeight * dpr;
+    sigCtx = canvas.getContext('2d');
+    sigCtx.scale(dpr, dpr);
+    sigCtx.strokeStyle = '#f4c542';
+    sigCtx.lineWidth = 2;
+    sigCtx.lineCap = 'round';
+    sigCtx.lineJoin = 'round';
+    sigHasContent = false;
+    if (existing) {
+      const img = new Image();
+      img.onload = () => sigCtx.drawImage(img, 0, 0, canvas.offsetWidth, canvas.offsetHeight);
+      img.src = existing;
+      sigHasContent = true;
+      document.getElementById('sigHint').style.display='none';
+    }
+
+    function getPos(e) {
+      const rect = canvas.getBoundingClientRect();
+      const src = e.touches ? e.touches[0] : e;
+      return { x: src.clientX - rect.left, y: src.clientY - rect.top };
+    }
+
+    canvas.addEventListener('mousedown', e => { sigDrawing=true; sigCtx.beginPath(); const p=getPos(e); sigCtx.moveTo(p.x,p.y); });
+    canvas.addEventListener('mousemove', e => { if(!sigDrawing) return; const p=getPos(e); sigCtx.lineTo(p.x,p.y); sigCtx.stroke(); sigHasContent=true; document.getElementById('sigHint').style.display='none'; });
+    canvas.addEventListener('mouseup', ()=>sigDrawing=false);
+    canvas.addEventListener('touchstart', e=>{ e.preventDefault(); sigDrawing=true; sigCtx.beginPath(); const p=getPos(e); sigCtx.moveTo(p.x,p.y); },{passive:false});
+    canvas.addEventListener('touchmove', e=>{ e.preventDefault(); if(!sigDrawing)return; const p=getPos(e); sigCtx.lineTo(p.x,p.y); sigCtx.stroke(); sigHasContent=true; document.getElementById('sigHint').style.display='none'; },{passive:false});
+    canvas.addEventListener('touchend',()=>sigDrawing=false);
+  }
+
+  function clearSig() {
+    const canvas = document.getElementById('sigCanvas');
+    sigCtx.clearRect(0,0,canvas.width,canvas.height);
+    sigHasContent=false;
+    document.getElementById('sigHint').style.display='flex';
+  }
+
+  function getSig() {
+    if (!sigHasContent) return null;
+    return document.getElementById('sigCanvas').toDataURL('image/png');
+  }
+
+  function saveDive() {
+    const site = document.getElementById('fSite').value.trim();
+    if (!site) { toast('Site name required'); return; }
+    const dive = {
+      id: editingDiveId || Date.now().toString(),
+      site,
+      location: document.getElementById('fLocation').value.trim(),
+      date: document.getElementById('fDate').value,
+      depth: document.getElementById('fDepth').value,
+      duration: document.getElementById('fDuration').value,
+      type: diveType,
+      encounters: [...selectedEnc],
+      encCustom: document.getElementById('fEncCustom').value.trim(),
+      notes: document.getElementById('fNotes').value.trim(),
+      photos: [...photoData],
+      instName: document.getElementById('fInstName').value.trim(),
+      instNum: document.getElementById('fInstNum').value.trim(),
+      signature: getSig(),
+      stamp: stampData,
+    };
+    if (editingDiveId) {
+      const idx = dives.findIndex(d=>d.id===editingDiveId);
+      if (idx>=0) dives[idx] = dive;
+    } else {
+      dives.push(dive);
+    }
+    localStorage.setItem('od_dives', JSON.stringify(dives));
+    toast(t('saved'));
+    setTimeout(()=>{ showDash(); }, 600);
+  }
+
+  // ---- DETAIL ----
+  function viewDive(id) {
+    currentDive = id;
+    const d = dives.find(x=>x.id===id);
+    if (!d) return;
+    const num = dives.findIndex(x=>x.id===id)+1;
+
+    const encList = d.encounters && d.encounters.length ? d.encounters.map(e=>{
+      const match = ENCOUNTERS.find(x=>x.fr===e);
+      return match ? (lang==='fr'?match.fr:match.en) : e;
+    }) : [];
+    if (d.encCustom) encList.push(d.encCustom);
+
+    let html = `
+    <div class="detail-hero">
+      <div class="detail-num">${num}</div>
+      <div class="detail-site">${d.site}</div>
+      <div class="detail-location">📍 ${d.location||'—'} · ${d.date||'—'}</div>
+    </div>
+    <div class="detail-body">
+      <div class="detail-grid">
+        <div class="detail-stat">
+          <div class="detail-stat-label">${t('stat_depth')}</div>
+          <div class="detail-stat-value">${d.depth||'—'} <span class="detail-stat-unit">${d.depth?t('meters'):''}</span></div>
+        </div>
+        <div class="detail-stat">
+          <div class="detail-stat-label">${t('dive_duration')}</div>
+          <div class="detail-stat-value">${d.duration||'—'} <span class="detail-stat-unit">${d.duration?t('min'):''}</span></div>
+        </div>
+        <div class="detail-stat" style="grid-column:1/-1">
+          <div class="detail-stat-label">${t('dive_type')}</div>
+          <div style="font-size:0.95rem;margin-top:4px">${d.type==='guided'?t('guided_label'):t('auto_label')}</div>
+        </div>
+      </div>`;
+
+    if (encList.length) {
+      html += `<div class="detail-section-title">${t('enc_section')}</div>
+      <div class="enc-list">${encList.map(e=>`<span class="enc-tag selected" style="cursor:default">${e}</span>`).join('')}</div>`;
+    }
+
+    if (d.notes) {
+      html += `<div class="detail-section-title">${t('notes_section')}</div>
+      <div class="detail-notes">${d.notes}</div>`;
+    }
+
+    if (d.photos && d.photos.length) {
+      html += `<div class="detail-section-title">${t('photos_section')}</div>
+      <div class="detail-photos">${d.photos.map(src=>`<img src="${src}">`).join('')}</div>`;
+    }
+
+    if (d.instName || d.instNum || d.signature || d.stamp) {
+      html += `<div class="detail-section-title">${t('instructor_section')}</div>
+      <div class="detail-stat" style="margin-bottom:10px">`;
+      if (d.instName) html += `<div><strong>${d.instName}</strong></div>`;
+      if (d.instNum) html += `<div style="font-size:0.8rem;opacity:0.6"># ${d.instNum}</div>`;
+      html += '</div>';
+      if (d.signature) {
+        html += `<div class="detail-section-title">${t('signature_section')}</div>
+        <div class="detail-sig"><img src="${d.signature}"></div>`;
+      }
+      if (d.stamp) {
+        html += `<div class="detail-section-title">${t('stamp_section')}</div>
+        <div class="detail-sig"><img src="${d.stamp}"></div>`;
+      }
+    }
+
+    html += '</div>';
+    document.getElementById('detailContent').innerHTML = html;
+    showScreen('screen-detail');
+  }
+
+  function deleteDive() {
+    if (!confirm('Delete this dive?')) return;
+    dives = dives.filter(d=>d.id!==currentDive);
+    localStorage.setItem('od_dives', JSON.stringify(dives));
+    toast(t('deleted'));
+    setTimeout(()=>showDash(), 400);
+  }
+
+  // ---- PDF EXPORT ----
+  function exportPDF() {
+    const d = dives.find(x=>x.id===currentDive);
+    if (!d) return;
+
+    const encList = d.encounters && d.encounters.length ? d.encounters.map(e=>{
+      const match = ENCOUNTERS.find(x=>x.fr===e);
+      return match ? (lang==='fr'?match.fr:match.en) : e;
+    }) : [];
+    if (d.encCustom) encList.push(d.encCustom);
+    const num = dives.findIndex(x=>x.id===currentDive)+1;
+
+    const win = window.open('','_blank');
+    win.document.write(`<!DOCTYPE html><html><head>
+<meta charset="UTF-8">
+<title>Ocean Diary – ${d.site}</title>
+<style>
+body{font-family:Georgia,serif;max-width:700px;margin:40px auto;color:#111;padding:0 20px}
+h1{font-size:2rem;margin-bottom:4px}
+.sub{color:#666;font-size:0.85rem;margin-bottom:24px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:20px 0}
+.cell{border:1px solid #ddd;border-radius:8px;padding:14px}
+.label{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;color:#999}
+.value{font-size:1.1rem;margin-top:4px}
+.enc{display:flex;flex-wrap:wrap;gap:6px;margin:12px 0}
+.enc span{padding:4px 10px;border:1px solid #0d2444;border-radius:20px;font-size:0.8rem;color:#0d2444}
+.notes{border:1px solid #ddd;border-radius:8px;padding:16px;white-space:pre-wrap;line-height:1.7;font-size:0.95rem;margin:12px 0}
+.sig img{max-width:240px;border:1px solid #ddd;border-radius:8px}
+.photos{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.photos img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:8px}
+.footer{margin-top:40px;font-size:0.7rem;color:#aaa;text-align:center;border-top:1px solid #eee;padding-top:16px}
+h3{margin-top:24px;margin-bottom:8px;font-size:1rem;color:#0d2444;border-bottom:1px solid #eee;padding-bottom:4px}
+</style></head><body>
+<h1>🌊 ${d.site}</h1>
+<div class="sub">Ocean Diary · Dive #${num} · ${d.date||''}</div>
+<div class="grid">
+<div class="cell"><div class="label">${lang==='fr'?'Lieu':'Location'}</div><div class="value">${d.location||'—'}</div></div>
+<div class="cell"><div class="label">${lang==='fr'?'Type':'Type'}</div><div class="value">${d.type==='guided'?t('guided_label'):t('auto_label')}</div></div>
+<div class="cell"><div class="label">${lang==='fr'?'Profondeur':'Depth'}</div><div class="value">${d.depth||'—'} ${d.depth?'m':''}</div></div>
+<div class="cell"><div class="label">${lang==='fr'?'Durée':'Duration'}</div><div class="value">${d.duration||'—'} ${d.duration?'min':''}</div></div>
+</div>
+${encList.length?`<h3>${t('enc_section')}</h3><div class="enc">${encList.map(e=>`<span>${e}</span>`).join('')}</div>`:''}
+${d.notes?`<h3>${t('notes_section')}</h3><div class="notes">${d.notes}</div>`:''}
+${d.instName||d.instNum?`<h3>${t('instructor_section')}</h3><p>${d.instName||''} ${d.instNum?'#'+d.instNum:''}</p>`:''}
+${d.signature?`<h3>${t('signature_section')}</h3><div class="sig"><img src="${d.signature}"></div>`:''}
+${d.stamp?`<h3>${t('stamp_section')}</h3><div class="sig"><img src="${d.stamp}" style="max-width:160px"></div>`:''}
+${d.photos&&d.photos.length?`<h3>${t('photos_section')}</h3><div class="photos">${d.photos.map(s=>`<img src="${s}">`).join('')}</div>`:''}
+<div class="footer">Ocean Diary · Created by Justine · Dive N' Smile Bora-Bora · oceandiary.app</div>
+</body></html>`);
+    win.document.close();
+    setTimeout(()=>win.print(), 500);
+  }
+
+  // ---- ADMIN ----
+  function goAdmin() {
+    document.getElementById('adminPwd').value='';
+    document.getElementById('adminLoginWrap').style.display='flex';
+    document.getElementById('adminContentWrap').style.display='none';
+    showScreen('screen-admin');
+  }
+
+  function adminLogin() {
+    const pwd = document.getElementById('adminPwd').value;
+    if (pwd !== 'Diary29.') { toast('Wrong password'); return; }
+    document.getElementById('adminLoginWrap').style.display='none';
+    document.getElementById('adminContentWrap').style.display='block';
+    renderAdminSlides();
+  }
+
+  function renderAdminSlides() {
+    const grid = document.getElementById('adminSlidesGrid');
+    grid.innerHTML = slides.map((src,i) => `
+      <div class="admin-slide">
+        <img src="${src}">
+        <button class="admin-slide-del" onclick="App.adminDelSlide(${i})">✕</button>
+      </div>`).join('');
+  }
+
+  function adminAddSlide(input) {
+    Array.from(input.files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        slides.push(e.target.result);
+        localStorage.setItem('od_slides', JSON.stringify(slides));
+        renderAdminSlides();
+        toast('Photo added');
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function adminDelSlide(i) {
+    slides.splice(i,1);
+    localStorage.setItem('od_slides', JSON.stringify(slides));
+    renderAdminSlides();
+  }
+
+  // ---- TOAST ----
+  function toast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    setTimeout(()=>el.classList.remove('show'), 2200);
+  }
+
+  // ---- INIT ----
+  function init() {
+    applyLang();
+    startSlideshow();
+    
+    // Bind all buttons via addEventListener (works on all browsers)
+    function bind(id, fn) {
+      var el = document.getElementById(id);
+      if (el) el.addEventListener('click', fn);
+    }
+    
+    bind('btnStart', function() { startApp(); });
+    bind('btnAdmin', function() { goAdmin(); });
+    bind('btnFR', function() { setLang('fr'); });
+    bind('btnEN', function() { setLang('en'); });
+    bind('btnSaveProfile', function() { saveProfile(); });
+    bind('btnNewDive', function() { newDive(); });
+    bind('btnSaveDive', function() { saveDive(); });
+    bind('btnEditDive', function() { editDive(); });
+    bind('btnDeleteDive', function() { deleteDive(); });
+    bind('btnAdminLogin', function() { adminLogin(); });
+    bind('btnClearSig', function() { clearSig(); });
+    bind('btnExportPDF', function() { exportPDF(); });
+    bind('btnBackToDash', function() { showDash(); });
+    bind('btnBackToHome', function() { showHome(); });
+  }
+
+  return {
+    init, setLang, startApp, showHome, showDash,
+    saveProfile, setAvatar,
+    newDive, editDive, saveDive, deleteDive,
+    setType, toggleEnc, addPhotos, addStamp,
+    clearSig, viewDive, exportPDF,
+    goAdmin, adminLogin, adminAddSlide, adminDelSlide,
+  };
+})();
+
+window.addEventListener('load', function() {
+  App.init();
+  
+  // Bind buttons safely (works even with strict CSP)
+  var btnStart = document.querySelector('.btn-primary[data-i18n="home_start"]');
+  if (btnStart) btnStart.addEventListener('click', function() { App.startApp(); });
+  
+  var btnAdmin = document.querySelector('.btn-secondary[data-i18n="home_admin"]');
+  if (btnAdmin) btnAdmin.addEventListener('click', function() { App.goAdmin(); });
+});
+</script>
+</body>
+</html>
